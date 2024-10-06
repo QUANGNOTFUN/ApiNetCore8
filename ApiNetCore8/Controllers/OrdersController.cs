@@ -11,47 +11,47 @@ namespace ApiNetCore8.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LaptopsController : ControllerBase
+    public class OrdersController : ControllerBase
     {
         private readonly InventoryContext _context;
 
-        public LaptopsController(InventoryContext context)
+        public OrdersController(InventoryContext context)
         {
             _context = context;
         }
 
-        // GET: api/Laptops
+        // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Laptop>>> GetLaptops()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Laptops!.ToListAsync();
+            return await _context.Orders.ToListAsync();
         }
 
-        // GET: api/Laptops/5
+        // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Laptop>> GetLaptop(int id)
+        public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var laptop = await _context.Laptops!.FindAsync(id);
+            var order = await _context.Orders.FindAsync(id);
 
-            if (laptop == null)
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return laptop;
+            return order;
         }
 
-        // PUT: api/Laptops/5
+        // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLaptop(int id, Laptop laptop)
+        public async Task<IActionResult> PutOrder(int id, Order order)
         {
-            if (id != laptop.Id)
+            if (id != order.OrderId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(laptop).State = EntityState.Modified;
+            _context.Entry(order).State = EntityState.Modified;
 
             try
             {
@@ -59,7 +59,7 @@ namespace ApiNetCore8.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!LaptopExists(id))
+                if (!OrderExists(id))
                 {
                     return NotFound();
                 }
@@ -72,36 +72,36 @@ namespace ApiNetCore8.Controllers
             return NoContent();
         }
 
-        // POST: api/Laptops
+        // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Laptop>> PostLaptop(Laptop laptop)
+        public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.Laptops!.Add(laptop);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetLaptop", new { id = laptop.Id }, laptop);
+            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
         }
 
-        // DELETE: api/Laptops/5
+        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLaptop(int id)
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            var laptop = await _context.Laptops!.FindAsync(id);
-            if (laptop == null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            _context.Laptops.Remove(laptop);
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool LaptopExists(int id)
+        private bool OrderExists(int id)
         {
-            return _context.Laptops!.Any(e => e.Id == id);
+            return _context.Orders.Any(e => e.OrderId == id);
         }
     }
 }
