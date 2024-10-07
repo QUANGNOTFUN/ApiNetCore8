@@ -6,9 +6,11 @@ namespace ApiNetCore8.Helpers
 {
     public class ApplicationMapper : Profile
     {
-        public ApplicationMapper() 
+        public ApplicationMapper()
         {
-            CreateMap<Laptop, LaptopModel>().ReverseMap();
+            CreateMap<Category, CategoryData>().ReverseMap();
+            CreateMap<Product, ProductData>().ReverseMap();
+            CreateMap<Supplier, SupplierData>().ReverseMap();
         }
     }
 }

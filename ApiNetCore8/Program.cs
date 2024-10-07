@@ -1,5 +1,6 @@
 using ApiNetCore8.Data;
 using ApiNetCore8.Repositores;
+using ApiNetCore8.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,9 @@ builder.Services.AddDbContext<InventoryContext>(options => {
 
 builder.Services.AddAutoMapper(typeof(Program));
 
-builder.Services.AddScoped<ILaptopRepository, LaptopRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 
 var app = builder.Build();
 
