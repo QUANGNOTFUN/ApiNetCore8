@@ -20,28 +20,20 @@ namespace ApiNetCore8.Data
         // Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Thiết lập mối quan hệ 1-many giữa Category và Product
-            modelBuilder.Entity<Product>(entity =>
-            {
-                entity.HasOne(p => p.Category)
-                      .WithMany(c => c.Products)
-                      .HasForeignKey(p => p.CategoryID);
-            });
-
-            // Thiết lập mối quan hệ 1-1 giữa Category và Supplier
             modelBuilder.Entity<Category>()
-                .HasOne(c => c.Supplier)
-                .WithOne(s => s.Category)
-                .HasForeignKey<Supplier>(s => s.CategoryId);
+                        .HasMany(c => c.Products)
+                        .WithOne(p => p.Category)
+                        .HasForeignKey(p => p.CategoryID);
 
-            // Thiết lập mối quan hệ 1-n giữa Order và OrderDetail
-            modelBuilder.Entity<OrderDetail>(entity =>
-            {
-                entity.HasOne(od => od.Order)
-                      .WithMany(o => o.OrderDetails)
-                      .HasForeignKey(od => od.OrderId);
-            });
+            modelBuilder.Entity<Order>()
+                        .HasMany(o => o.OrderDetails)
+                        .WithOne(od => od.Order)
+                        .HasForeignKey(od => od.OrderId);
 
+            modelBuilder.Entity<OrderDetail>()
+                        .HasOne(od => od.Product)
+                        .WithMany(p => p.OrderDetails)
+                        .HasForeignKey(od => od.ProductId);
         }
     }
 }

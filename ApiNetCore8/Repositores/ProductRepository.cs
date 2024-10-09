@@ -16,7 +16,7 @@ namespace ApiNetCore8.Repositores
             _context = context;
             _mapper = mapper;
         }
-        public async Task<int> AddProductAsync(ProductData model)
+        public async Task<int> AddProductAsync(ProductModel model)
         {
             var newProduct = _mapper.Map<Product>(model);
             var category = await _context.Categories
@@ -42,13 +42,13 @@ namespace ApiNetCore8.Repositores
             throw new NotImplementedException();
         }
 
-        public async Task<List<ProductData>> GetAllProductsAsync()
+        public async Task<List<ProductModel>> GetAllProductsAsync()
         {
             var products = await _context.Products.ToListAsync();
-            return _mapper.Map<List<ProductData>>(products);
+            return _mapper.Map<List<ProductModel>>(products);
         }
 
-        public async Task<ProductData> GetProductByIdAsync(int id)
+        public async Task<ProductModel> GetProductByIdAsync(int id)
         {
             var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == id);
 
@@ -56,10 +56,10 @@ namespace ApiNetCore8.Repositores
             {
                 return null;
             }
-            return _mapper.Map<ProductData>(product);
+            return _mapper.Map<ProductModel>(product);
         }
 
-        public Task UpdateProductAsync(int id, ProductData model)
+        public Task UpdateProductAsync(int id, ProductModel model)
         {
             throw new NotImplementedException();
         }

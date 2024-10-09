@@ -8,9 +8,9 @@ namespace ApiNetCore8.Helpers
     {
         public ApplicationMapper()
         {
-            CreateMap<Category, CategoryData>().ReverseMap();
-            CreateMap<Product, ProductData>().ReverseMap();
-            CreateMap<Supplier, SupplierData>().ReverseMap();
+            CreateMap<Category, CategoryModel>().ReverseMap();
+            CreateMap<Product, ProductModel>().ReverseMap();
+            CreateMap<Supplier, SupplierModel>().ReverseMap();
         }
     }
 }

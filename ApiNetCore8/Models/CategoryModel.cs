@@ -2,7 +2,7 @@
 
 namespace ApiNetCore8.Models
 {
-    public class CategoryData
+    public class CategoryModel
     {
         public int CategoryId { get; set; }
 
