@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class ProductData
+public class ProductModel
 {
     public int ProductID { get; set; }
 

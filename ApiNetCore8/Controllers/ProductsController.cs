@@ -18,7 +18,7 @@ namespace ApiNetCore8.Controllers
 
         // Lấy tất cả sản phẩm
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductData>>> GetAllProducts()
+        public async Task<ActionResult<IEnumerable<ProductModel>>> GetAllProducts()
         {
             try
             {
@@ -33,7 +33,7 @@ namespace ApiNetCore8.Controllers
 
         // Lấy sản phẩm theo ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProductData>> GetProductById(int id)
+        public async Task<ActionResult<ProductModel>> GetProductById(int id)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace ApiNetCore8.Controllers
 
         // Thêm sản phẩm mới
         [HttpPost]
-        public async Task<ActionResult<ProductData>> AddProduct(ProductData model)
+        public async Task<ActionResult<ProductModel>> AddProduct(ProductModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
             {
@@ -73,7 +73,7 @@ namespace ApiNetCore8.Controllers
 
         // Cập nhật sản phẩm
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateProduct(int id, ProductData model)
+        public async Task<ActionResult> UpdateProduct(int id, ProductModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
             {

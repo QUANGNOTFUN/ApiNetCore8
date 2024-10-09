@@ -17,7 +17,7 @@ namespace ApiNetCore8.Repositories
             _mapper = mapper;
         }
 
-        public async Task<int> AddCategoryAsync(CategoryData model)
+        public async Task<int> AddCategoryAsync(CategoryModel model)
         {
             var newCategory = _mapper.Map<Category>(model);
 
@@ -49,19 +49,19 @@ namespace ApiNetCore8.Repositories
             }
         }
 
-        public async Task<List<CategoryData>> GetAllCategoryAsync()
+        public async Task<List<CategoryModel>> GetAllCategoryAsync()
         {
             var categories = await _context.Categories.ToListAsync();
-            return _mapper.Map<List<CategoryData>>(categories);
+            return _mapper.Map<List<CategoryModel>>(categories);
         }
 
-        public async Task<CategoryData> GetCategoryByIdAsync(int id)
+        public async Task<CategoryModel> GetCategoryByIdAsync(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-            return _mapper.Map<CategoryData>(category);
+            return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task UpdateCategoryAsync(int id, CategoryData model)
+        public async Task UpdateCategoryAsync(int id, CategoryModel model)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)

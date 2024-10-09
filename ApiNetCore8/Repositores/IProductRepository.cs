@@ -4,10 +4,10 @@ namespace ApiNetCore8.Repositories
 {
     public interface IProductRepository
     {
-        public Task<List<ProductData>> GetAllProductsAsync();
-        public Task<ProductData> GetProductByIdAsync(int id);
-        public Task<int> AddProductAsync(ProductData model);
-        public Task UpdateProductAsync(int id, ProductData model);
+        public Task<List<ProductModel>> GetAllProductsAsync();
+        public Task<ProductModel> GetProductByIdAsync(int id);
+        public Task<int> AddProductAsync(ProductModel model);
+        public Task UpdateProductAsync(int id, ProductModel model);
         public Task DeleteProductAsync(int id);
     }
 }

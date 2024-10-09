@@ -2,9 +2,8 @@
 
 namespace ApiNetCore8.Models
 {
-    public class SupplierData
+    public class SupplierModel
     {
-        [Key]
         public int SupplierId { get; set; }
 
         [Required]

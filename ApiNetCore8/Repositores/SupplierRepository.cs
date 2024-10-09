@@ -18,7 +18,7 @@ namespace ApiNetCore8.Repositories
         }
 
         // Thêm nhà cung cấp mới
-        public async Task<int> AddSupplierAsync(SupplierData model)
+        public async Task<int> AddSupplierAsync(SupplierModel model)
         {
             var newSupplier = _mapper.Map<Supplier>(model);
 
@@ -38,21 +38,21 @@ namespace ApiNetCore8.Repositories
         }
 
         // Lấy tất cả nhà cung cấp
-        public async Task<List<SupplierData>> GetAllSuppliersAsync()
+        public async Task<List<SupplierModel>> GetAllSuppliersAsync()
         {
             var suppliers = await _context.Suppliers.ToListAsync();
-            return _mapper.Map<List<SupplierData>>(suppliers);
+            return _mapper.Map<List<SupplierModel>>(suppliers);
         }
 
         // Lấy nhà cung cấp theo ID
-        public async Task<SupplierData> GetSupplierByIdAsync(int id)
+        public async Task<SupplierModel> GetSupplierByIdAsync(int id)
         {
             var supplier = await _context.Suppliers.FindAsync(id);
-            return _mapper.Map<SupplierData>(supplier);
+            return _mapper.Map<SupplierModel>(supplier);
         }
 
         // Cập nhật thông tin nhà cung cấp
-        public async Task UpdateSupplierAsync(int id, SupplierData model)
+        public async Task UpdateSupplierAsync(int id, SupplierModel model)
         {
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null)

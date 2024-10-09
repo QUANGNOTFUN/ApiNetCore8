@@ -39,7 +39,12 @@ namespace ApiNetCore8.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("int");
+
                     b.HasKey("CategoryId");
+
+                    b.HasIndex("SupplierId");
 
                     b.ToTable("Category");
                 });
@@ -58,13 +63,9 @@ namespace ApiNetCore8.Migrations
                     b.Property<int>("SupplierId")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalAmount")
-                        .HasColumnType("float");
-
                     b.HasKey("OrderId");
 
-                    b.HasIndex("SupplierId")
-                        .IsUnique();
+                    b.HasIndex("SupplierId");
 
                     b.ToTable("Order");
                 });
@@ -86,46 +87,19 @@ namespace ApiNetCore8.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderDetailId");
 
                     b.HasIndex("OrderId");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("OrderDetail");
                 });
 
-            modelBuilder.Entity("ApiNetCore8.Data.Supplier", b =>
-                {
-                    b.Property<int>("SupplierId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierId"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ContactInfo")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("SupplierId");
-
-                    b.HasIndex("CategoryId")
-                        .IsUnique();
-
-                    b.ToTable("Supplier");
-                });
-
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("ApiNetCore8.Data.Product", b =>
                 {
                     b.Property<int>("ProductID")
                         .ValueGeneratedOnAdd()
@@ -139,9 +113,6 @@ namespace ApiNetCore8.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("OrderDetailID")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -161,16 +132,44 @@ namespace ApiNetCore8.Migrations
 
                     b.HasIndex("CategoryID");
 
-                    b.HasIndex("OrderDetailID");
+                    b.ToTable("Product");
+                });
 
-                    b.ToTable("Products");
+            modelBuilder.Entity("ApiNetCore8.Data.Supplier", b =>
+                {
+                    b.Property<int>("SupplierId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierId"));
+
+                    b.Property<string>("ContactInfo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("SupplierName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("SupplierId");
+
+                    b.ToTable("Supplier");
+                });
+
+            modelBuilder.Entity("ApiNetCore8.Data.Category", b =>
+                {
+                    b.HasOne("ApiNetCore8.Data.Supplier", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("SupplierId");
                 });
 
             modelBuilder.Entity("ApiNetCore8.Data.Order", b =>
                 {
                     b.HasOne("ApiNetCore8.Data.Supplier", "Supplier")
-                        .WithOne("Order")
-                        .HasForeignKey("ApiNetCore8.Data.Order", "SupplierId")
+                        .WithMany("Orders")
+                        .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -185,21 +184,18 @@ namespace ApiNetCore8.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("ApiNetCore8.Data.Supplier", b =>
-                {
-                    b.HasOne("ApiNetCore8.Data.Category", "Category")
-                        .WithOne("Supplier")
-                        .HasForeignKey("ApiNetCore8.Data.Supplier", "CategoryId")
+                    b.HasOne("ApiNetCore8.Data.Product", "Product")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("ApiNetCore8.Data.Product", b =>
                 {
                     b.HasOne("ApiNetCore8.Data.Category", "Category")
                         .WithMany("Products")
@@ -207,23 +203,12 @@ namespace ApiNetCore8.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApiNetCore8.Data.OrderDetail", "OrderDetail")
-                        .WithMany("Products")
-                        .HasForeignKey("OrderDetailID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Category");
-
-                    b.Navigation("OrderDetail");
                 });
 
             modelBuilder.Entity("ApiNetCore8.Data.Category", b =>
                 {
                     b.Navigation("Products");
-
-                    b.Navigation("Supplier")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ApiNetCore8.Data.Order", b =>
@@ -231,15 +216,16 @@ namespace ApiNetCore8.Migrations
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("ApiNetCore8.Data.OrderDetail", b =>
+            modelBuilder.Entity("ApiNetCore8.Data.Product", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("ApiNetCore8.Data.Supplier", b =>
                 {
-                    b.Navigation("Order")
-                        .IsRequired();
+                    b.Navigation("Categories");
+
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

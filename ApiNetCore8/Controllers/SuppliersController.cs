@@ -20,7 +20,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Suppliers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SupplierData>>> GetAllSuppliers()
+        public async Task<ActionResult<IEnumerable<SupplierModel>>> GetAllSuppliers()
         {
             try
             {
@@ -35,7 +35,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Suppliers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SupplierData>> GetSupplierById(int id)
+        public async Task<ActionResult<SupplierModel>> GetSupplierById(int id)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Suppliers
         [HttpPost]
-        public async Task<ActionResult<SupplierData>> AddSupplier(SupplierData model)
+        public async Task<ActionResult<SupplierModel>> AddSupplier(SupplierModel model)
         {
             if (model == null)
             {
@@ -83,7 +83,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Suppliers/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateSupplier(int id, SupplierData model)
+        public async Task<ActionResult> UpdateSupplier(int id, SupplierModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
             {

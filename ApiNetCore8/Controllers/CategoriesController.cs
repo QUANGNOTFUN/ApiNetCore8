@@ -21,7 +21,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryData>>> GetAllCategories()
+        public async Task<ActionResult<IEnumerable<CategoryModel>>> GetAllCategories()
         {
             try
             {
@@ -36,7 +36,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryData>> GetCategoryById(int id)
+        public async Task<ActionResult<CategoryModel>> GetCategoryById(int id)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Categories
         [HttpPost]
-        public async Task<ActionResult<CategoryData>> AddCategory(CategoryData model)
+        public async Task<ActionResult<CategoryModel>> AddCategory(CategoryModel model)
         {
             if (model == null)
             {
@@ -84,7 +84,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Categories/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateCategory(int id, CategoryData model)
+        public async Task<ActionResult> UpdateCategory(int id, CategoryModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
             {
