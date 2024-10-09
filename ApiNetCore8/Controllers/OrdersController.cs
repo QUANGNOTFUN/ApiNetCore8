@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ApiNetCore8.Data;
+using ApiNetCore8.Models;
+using ApiNetCore8.Repositores;
 
 namespace ApiNetCore8.Controllers
 {
@@ -13,95 +15,123 @@ namespace ApiNetCore8.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly InventoryContext _context;
+        private readonly IOrderRepository _repo;
 
-        public OrdersController(InventoryContext context)
+        public OrdersController(IOrderRepository repo)
         {
-            _context = context;
+            _repo = repo;
         }
 
-        // GET: api/Orders
+        // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllCategories()
         {
-            return await _context.Orders.ToListAsync();
+            try
+            {
+                var categories = await _repo.GetAllOrderAsync();
+                return Ok(categories);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // GET: api/Orders/5
+        // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        public async Task<ActionResult<OrderModel>> GetOrderById(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-
-            if (order == null)
+            try
             {
-                return NotFound();
+                var Order = await _repo.GetOrderByIdAsync(id);
+                if (Order == null)
+                {
+                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
+                }
+                return Ok(Order);
             }
-
-            return order;
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // PUT: api/Orders/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+        // POST: api/Categories
+        [HttpPost]
+        public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
-            if (id != order.OrderId)
+            if (model == null)
             {
-                return BadRequest();
+                return BadRequest("Order data is null.");
             }
-
-            _context.Entry(order).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                var newOrderId = await _repo.AddOrderAsync(model);
+
+                if (newOrderId <= 0)
+                {
+                    return BadRequest("Order creation was not successful.");
+                }
+
+                var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
+
+                return CreatedAtAction(nameof(GetOrderById), new { id = newOrderId }, newOrder);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!OrderExists(id))
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        // PUT: api/Categories/5
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
+        {
+            if (model == null) // Kiểm tra nếu model là null
+            {
+                return BadRequest("Order data is null.");
+            }
+
+            try
+            {
+                // Kiểm tra xem danh mục có tồn tại không
+                var existingOrder = await _repo.GetOrderByIdAsync(id);
+                if (existingOrder == null)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                await _repo.UpdateOrderAsync(id, model);
+                return NoContent();
             }
-
-            return NoContent();
-        }
-
-        // POST: api/Orders
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
-        {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
-        }
-
-        // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, ex.Message);
             }
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool OrderExists(int id)
+
+        // DELETE: api/Categories/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteOrder(int id)
         {
-            return _context.Orders.Any(e => e.OrderId == id);
+            try
+            {
+                var existingOrder = await _repo.GetOrderByIdAsync(id);
+                if (existingOrder == null)
+                {
+                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
+                }
+
+                await _repo.DeleteOrderAsync(id); // Gọi phương thức xóa
+                return NoContent(); // Trả về 204 No Content nếu xóa thành công
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
