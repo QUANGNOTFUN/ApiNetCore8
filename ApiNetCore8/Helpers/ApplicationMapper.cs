@@ -12,6 +12,7 @@ namespace ApiNetCore8.Helpers
             CreateMap<Product, ProductModel>().ReverseMap();
             CreateMap<Supplier, SupplierModel>().ReverseMap();
             CreateMap<OrderDetail, OrderDetailModel>().ReverseMap();
+            CreateMap<Order, OrderModel>().ReverseMap();
         }
     }
 }
