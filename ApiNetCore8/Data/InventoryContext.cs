@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ApiNetCore8.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ApiNetCore8.Data
 {
-    public class InventoryContext : DbContext
+    public class InventoryContext : IdentityDbContext<ApplicationUser>
     {
         public InventoryContext(DbContextOptions<InventoryContext> opt) : base(opt)
         {

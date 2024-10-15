@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositories;
 using ApiNetCore8.Repositores;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiNetCore8.Controllers
 {
@@ -21,6 +22,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CategoryModel>>> GetAllCategories()
         {
             try
@@ -36,6 +38,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<CategoryModel>> GetCategoryById(int id)
         {
             try
@@ -55,6 +58,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Categories
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<CategoryModel>> AddCategory(CategoryModel model)
         {
             if (model == null)
@@ -84,6 +88,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Categories/5
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult> UpdateCategory(int id, CategoryModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
@@ -112,6 +117,7 @@ namespace ApiNetCore8.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeleteCategory(int id)
         {
             try
