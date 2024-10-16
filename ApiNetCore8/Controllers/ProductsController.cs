@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ApiNetCore8.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiNetCore8.Controllers
 {
@@ -18,6 +19,7 @@ namespace ApiNetCore8.Controllers
 
         // Lấy tất cả sản phẩm
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<ProductModel>>> GetAllProducts()
         {
             try
@@ -33,6 +35,7 @@ namespace ApiNetCore8.Controllers
 
         // Lấy sản phẩm theo ID
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<ProductModel>> GetProductById(int id)
         {
             try
@@ -52,6 +55,7 @@ namespace ApiNetCore8.Controllers
 
         // Thêm sản phẩm mới
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<ProductModel>> AddProduct(ProductModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
@@ -73,6 +77,7 @@ namespace ApiNetCore8.Controllers
 
         // Cập nhật sản phẩm
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult> UpdateProduct(int id, ProductModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
@@ -99,6 +104,7 @@ namespace ApiNetCore8.Controllers
 
         // Xóa sản phẩm
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             try

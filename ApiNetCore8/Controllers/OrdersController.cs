@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ApiNetCore8.Data;
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositores;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiNetCore8.Controllers
 {
@@ -24,6 +25,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllCategories()
         {
             try
@@ -39,6 +41,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<OrderModel>> GetOrderById(int id)
         {
             try
@@ -58,6 +61,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Categories
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
             if (model == null)
@@ -87,6 +91,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Categories/5
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
@@ -115,6 +120,7 @@ namespace ApiNetCore8.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeleteOrder(int id)
         {
             try
