@@ -1,42 +1,41 @@
 ﻿using ApiNetCore8.Models;
 using ApiNetCore8.Repositores;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
+using System.Threading.Tasks;
 
 namespace ApiNetCore8.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    [Route("api/[controller]")]
+    public class AccountController : ControllerBase
     {
-        private readonly IAccountRepository accountRepo;
+        private readonly IAccountRepository _accountRepository;
 
-        public AccountsController(IAccountRepository repo)
+        public AccountController(IAccountRepository accountRepository)
         {
-            accountRepo = repo;
+            _accountRepository = accountRepository;
         }
 
-        [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp(SignUpModel signUpModel)
+        [HttpPost("signin")]
+        public async Task<IActionResult> SignIn(SignInModel model)
         {
-            var result = await accountRepo.SignUpAsync(signUpModel);
-            if (result.Succeeded)
+            var token = await _accountRepository.SignInAsync(model);
+            if (string.IsNullOrEmpty(token))
             {
-                return Ok(result.Succeeded);
+                return Unauthorized(new { Message = "Invalid login attempt." });
             }
-            return Unauthorized();
+            return Ok(token);
         }
-        [HttpPost("SignIn")]
-        public async Task<IActionResult> SignIn(SignInModel signInModel)
-        {
-            var result = await accountRepo.SignInAsync(signInModel);
 
-            if(string .IsNullOrEmpty(result))
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp(SignUpModel model)
+        {
+            var result = await _accountRepository.SignUpAsync(model);
+            if (!result.Succeeded)
             {
-                return Unauthorized();
+                return BadRequest(result.Errors);
             }
-            return Ok(result);
+            return Ok(new { Message = "User created successfully." });
         }
     }
 }

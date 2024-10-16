@@ -1,4 +1,5 @@
 ﻿using ApiNetCore8.Data;
+using ApiNetCore8.Helpers;
 using ApiNetCore8.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -13,19 +14,29 @@ namespace ApiNetCore8.Repositores
         private readonly UserManager<ApplicationUser> UserManager;
         private SignInManager<ApplicationUser> SignInManager;
         private readonly IConfiguration configuration;
+        private readonly RoleManager<IdentityRole> roleManager;
 
         public AccountRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager, IConfiguration
-            configuration)
+            configuration, RoleManager<IdentityRole> roleManager)
         {
             this.UserManager = userManager;
             this.SignInManager = signInManager;
             this.configuration  = configuration;
+            this.roleManager = roleManager;
         }
         public async Task<string> SignInAsync(SignInModel model)
         {
-            var result = await SignInManager.PasswordSignInAsync
-                (model.Email, model.Password, false, false);
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            var passwordValid = await UserManager.CheckPasswordAsync(user, model.Password);
+            
+            if (user == null || !passwordValid)
+            {
+                return string.Empty;
+            }
+
+            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            
             if (!result.Succeeded) {
                 return string.Empty;
             }
@@ -35,16 +46,21 @@ namespace ApiNetCore8.Repositores
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid
                     ().ToString())
             };
-            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration
-                ["JWT:Secret"]));
+
+            var userRoles = await UserManager.GetRolesAsync(user);
+            foreach (var role in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+            }    
+
+            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
 
             var token = new JwtSecurityToken(
                 issuer : configuration["JWT:ValidIssuer"],
                 audience: configuration["JWT:ValidAudience"],
                 expires : DateTime.Now.AddMinutes(20),
                 claims : authClaims,
-                signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(authenKey,
-                    SecurityAlgorithms.HmacSha256Signature)
+                signingCredentials: new Microsoft.IdentityModel.Tokens.SigningCredentials(authenKey, SecurityAlgorithms.HmacSha256Signature)
            );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
@@ -58,7 +74,20 @@ namespace ApiNetCore8.Repositores
                 Email = model.Email,
                 UserName = model.Email
             };
-            return await UserManager.CreateAsync(user,model.Password);
+            var result = await UserManager.CreateAsync(user,model.Password);
+
+            if (result.Succeeded) 
+            { 
+                // Kiểm tra role Staff
+                if(!await roleManager.RoleExistsAsync(InventoryRole.Staff))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
+                }
+
+                await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
+            }
+
+            return result;
         }
     }
 }

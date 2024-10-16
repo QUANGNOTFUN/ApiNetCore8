@@ -6,6 +6,7 @@ using ApiNetCore8.Models;
 using ApiNetCore8.Repositories;
 using ApiNetCore8.Repositores;
 using Microsoft.AspNetCore.Authorization;
+using ApiNetCore8.Helpers;
 
 namespace ApiNetCore8.Controllers
 {
@@ -22,17 +23,24 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<IEnumerable<CategoryModel>>> GetAllCategories()
         {
             try
             {
                 var categories = await _repo.GetAllCategoryAsync();
-                return Ok(categories);
+
+                // Kiểm tra nếu không có danh mục nào
+                if (categories == null || !categories.Any())
+                {
+                    return NotFound("No categories found."); // Trả về 404 nếu không tìm thấy danh mục
+                }
+
+                return Ok(categories); // Trả về danh sách danh mục
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Internal server error: " + ex.Message); // Trả về thông điệp lỗi cụ thể
             }
         }
 
@@ -66,17 +74,20 @@ namespace ApiNetCore8.Controllers
                 return BadRequest("Category data is null.");
             }
 
+            if (!ModelState.IsValid) // Kiểm tra tính hợp lệ của model
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 var newCategoryId = await _repo.AddCategoryAsync(model);
-
                 if (newCategoryId <= 0)
                 {
                     return BadRequest("Category creation was not successful.");
                 }
 
                 var newCategory = await _repo.GetCategoryByIdAsync(newCategoryId);
-
                 return CreatedAtAction(nameof(GetCategoryById), new { id = newCategoryId }, newCategory);
             }
             catch (Exception ex)
@@ -84,6 +95,7 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
 
 
         // PUT: api/Categories/5
