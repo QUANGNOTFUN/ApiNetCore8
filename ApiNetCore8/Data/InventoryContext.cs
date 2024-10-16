@@ -21,6 +21,9 @@ namespace ApiNetCore8.Data
         // Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Gọi base trước để cấu hình Identity
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Category>()
                         .HasMany(c => c.Products)
                         .WithOne(p => p.Category)
