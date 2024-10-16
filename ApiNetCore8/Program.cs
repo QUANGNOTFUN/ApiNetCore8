@@ -11,13 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Thêm c?u hình DbContext v?i tính n?ng ph?c h?i l?i t?m th?i
-builder.Services.AddDbContext<InventoryContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Inventory"),
-        sqlOptions => sqlOptions.EnableRetryOnFailure());
-});
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
