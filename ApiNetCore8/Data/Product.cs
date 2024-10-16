@@ -21,17 +21,17 @@ namespace ApiNetCore8.Data
         public decimal Price { get; set; }
 
         [Required]
-        public int StockQuantity { get; set; }
+        public int StockQuantity { get; set; } // Số lượng trong kho
 
         [Required]
-        public int ReorderLevel { get; set; }
+        public int ReorderLevel { get; set; } // Mức cảnh báo
 
         [ForeignKey("Category")]
         public int CategoryID { get; set; }
 
         public virtual Category Category { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+
+        // Khởi tạo tập hợp OrderDetails
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }
-
-

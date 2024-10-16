@@ -22,7 +22,7 @@ namespace ApiNetCore8.Controllers
             var token = await _accountRepository.SignInAsync(model);
             if (string.IsNullOrEmpty(token))
             {
-                return Unauthorized(new { Message = "Invalid login attempt." });
+                return Unauthorized(new { Message = "Đăng nhập không hợp lệ." });
             }
             return Ok(token);
         }
@@ -33,9 +33,10 @@ namespace ApiNetCore8.Controllers
             var result = await _accountRepository.SignUpAsync(model);
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new { Message = "Đăng ký không thành công.", Errors = result.Errors });
             }
-            return Ok(new { Message = "User created successfully." });
+            return Ok(new { Message = "Tài khoản đã được tạo thành công." });
         }
+
     }
 }
