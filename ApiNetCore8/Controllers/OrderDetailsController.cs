@@ -141,6 +141,7 @@ namespace ApiNetCore8.Controllers
             }
 
         }
+        [HttpDelete("{id}")]
         [Authorize]
         public async Task<ActionResult> DeleteOrderDetail(int id)
         {
