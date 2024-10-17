@@ -28,10 +28,10 @@ namespace ApiNetCore8.Repositores
 
         public async Task DeleteOrderAsync(int id)
         {
-            var Order = await _context.Orders.FindAsync(id);
-            if (Order != null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order != null)
             {
-                _context.Orders.Remove(Order);
+                _context.Orders.Remove(order);
                 await _context.SaveChangesAsync();
             }
             else
@@ -42,28 +42,63 @@ namespace ApiNetCore8.Repositores
 
         public async Task<List<OrderModel>> GetAllOrderAsync()
         {
-            var Orders = await _context.Orders.ToListAsync();
-            return _mapper.Map<List<OrderModel>>(Orders);
+            var orders = await _context.Orders
+                .Include(o => o.Supplier) // Bao gồm thông tin nhà cung cấp
+                .ToListAsync();
+
+            return _mapper.Map<List<OrderModel>>(orders);
+        }
+
+        public async Task<List<OrderModel>> GetLimitedOrdersAsync(int limit)
+        {
+            var orders = await _context.Orders
+                .Include(o => o.Supplier) // Bao gồm thông tin nhà cung cấp
+                .Take(limit)
+                .ToListAsync();
+
+            return _mapper.Map<List<OrderModel>>(orders);
         }
 
         public async Task<OrderModel> GetOrderByIdAsync(int id)
         {
-            var Order = await _context.Orders.FindAsync(id);
-            return _mapper.Map<OrderModel>(Order);
+            var order = await _context.Orders
+                .Include(o => o.Supplier) // Bao gồm thông tin nhà cung cấp
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+            return _mapper.Map<OrderModel>(order);
         }
 
-        public async Task UpdateOrderAsync(int id, OrderModel model)
+        // Phương thức tìm kiếm với phân trang
+        public async Task<List<OrderModel>> SearchOrdersAsync(DateTime? startDate, DateTime? endDate, int page, int pageSize)
         {
-            var Order = await _context.Orders.FindAsync(id);
-            if (Order == null)
+            var query = _context.Orders.Include(o => o.Supplier).AsQueryable();
+
+            if (startDate.HasValue)
             {
-                throw new KeyNotFoundException("Order not found");
+                query = query.Where(o => o.OrderDate >= startDate.Value);
             }
 
-            _mapper.Map(model, Order);
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.OrderDate <= endDate.Value);
+            }
 
-            _context.Orders.Update(Order);
-            await _context.SaveChangesAsync();
+            var orders = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return _mapper.Map<List<OrderModel>>(orders);
+        }
+
+        public Task<List<OrderModel>> SearchOrdersAsync(string searchTerm, int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateOrderAsync(int id, OrderModel model)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -88,5 +88,48 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
+        // GET: api/OrderDetails/search
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<OrderDetailModel>>> SearchOrderDetails(string searchTerm, int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                var orderDetails = await _repo.SearchOrderDetailsAsync(searchTerm, page, pageSize);
+
+                if (orderDetails == null || !orderDetails.Any())
+                {
+                    return NotFound("Không tìm thấy chi tiết đơn hàng nào.");
+                }
+
+                return Ok(orderDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
+
+        // GET: api/OrderDetails/limited
+        [HttpGet("limited")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetLimitedOrderDetails(int limit = 20)
+        {
+            try
+            {
+                var orderDetails = await _repo.GetLimitedOrderDetailsAsync(limit);
+
+                if (orderDetails == null || !orderDetails.Any())
+                {
+                    return NotFound("Không có chi tiết đơn hàng nào.");
+                }
+
+                return Ok(orderDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
     }
 }

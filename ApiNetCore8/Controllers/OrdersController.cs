@@ -30,7 +30,7 @@ namespace ApiNetCore8.Controllers
                 var orders = await _repo.GetAllOrderAsync();
                 if (orders == null || !orders.Any())
                 {
-                    return NotFound("Không có đơn hàng nào."); // Thêm thông báo khi không tìm thấy đơn hàng
+                    return NotFound("Không có đơn hàng nào.");
                 }
                 return Ok(orders);
             }
@@ -50,7 +50,7 @@ namespace ApiNetCore8.Controllers
                 var order = await _repo.GetOrderByIdAsync(id);
                 if (order == null)
                 {
-                    return NotFound("Không tìm thấy đơn hàng."); // Thêm thông báo khi không tìm thấy
+                    return NotFound("Không tìm thấy đơn hàng.");
                 }
                 return Ok(order);
             }
@@ -67,7 +67,7 @@ namespace ApiNetCore8.Controllers
         {
             if (model == null)
             {
-                return BadRequest("Dữ liệu đơn hàng bị trống."); // Thay đổi thông báo cho rõ ràng hơn
+                return BadRequest("Dữ liệu đơn hàng bị trống.");
             }
 
             try
@@ -76,7 +76,7 @@ namespace ApiNetCore8.Controllers
 
                 if (newOrderId <= 0)
                 {
-                    return BadRequest("Tạo đơn hàng không thành công."); // Thay đổi thông báo cho rõ ràng hơn
+                    return BadRequest("Tạo đơn hàng không thành công.");
                 }
 
                 var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
@@ -88,5 +88,51 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
+
+        // GET: api/Orders/search
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<OrderModel>>> SearchOrders(string searchTerm, int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                // Gọi phương thức với 3 tham số: searchTerm, page, pageSize
+                var orders = await _repo.SearchOrdersAsync(searchTerm, page, pageSize);
+
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound("Không tìm thấy đơn hàng nào.");
+                }
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
+        // GET: api/Orders/limited
+        [HttpGet("limited")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetLimitedOrders(int limit=20)
+        {
+            try
+            {
+                // Gọi phương thức với tham số limit
+                var orders = await _repo.GetLimitedOrdersAsync(limit);
+
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound("Không có đơn hàng nào.");
+                }
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
+
     }
 }

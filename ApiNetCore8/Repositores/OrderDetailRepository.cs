@@ -81,5 +81,37 @@ namespace ApiNetCore8.Repositories
             _context.OrderDetails.Update(OrderDetail);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<OrderDetailModel>> SearchOrderDetailsAsync(string searchTerm, int page, int pageSize)
+        {
+            var query = _context.OrderDetails
+                .Include(od => od.Product)
+                .Include(od => od.Order)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                // Giả sử tìm kiếm theo ProductName
+                query = query.Where(od => od.Product.ProductName.Contains(searchTerm));
+            }
+
+            var orderDetails = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return _mapper.Map<List<OrderDetailModel>>(orderDetails);
+        }
+
+        // Thêm phương thức lấy 20 sản phẩm
+        public async Task<List<OrderDetailModel>> GetLimitedOrderDetailsAsync(int limit)
+        {
+            var orderDetails = await _context.OrderDetails
+                .Include(od => od.Product)
+                .Include(od => od.Order)
+                .Take(limit)
+                .ToListAsync();
+
+            return _mapper.Map<List<OrderDetailModel>>(orderDetails);
+        }
     }
 }
