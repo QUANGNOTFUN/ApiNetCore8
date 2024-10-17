@@ -7,7 +7,7 @@ namespace ApiNetCore8.Models
         public int CategoryId { get; set; }
 
         [MaxLength(100)]
-        public required string CategoryName { get; set; }
+        public string CategoryName { get; set; }
 
         [MaxLength(100)]
         public string? Description { get; set; }

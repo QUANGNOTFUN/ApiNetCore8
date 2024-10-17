@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ApiNetCore8.Data;
 using ApiNetCore8.Models;
-using ApiNetCore8.Repositores;
+using ApiNetCore8.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using ApiNetCore8.Repositores;
 
 namespace ApiNetCore8.Controllers
 {
@@ -23,50 +20,54 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/Categories
+        // GET: api/Orders
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllCategories()
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders()
         {
             try
             {
-                var categories = await _repo.GetAllOrderAsync();
-                return Ok(categories);
+                var orders = await _repo.GetAllOrderAsync();
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound("Không có đơn hàng nào."); // Thêm thông báo khi không tìm thấy đơn hàng
+                }
+                return Ok(orders);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
 
-        // GET: api/Categories/5
+        // GET: api/Orders/5
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<OrderModel>> GetOrderById(int id)
         {
             try
             {
-                var Order = await _repo.GetOrderByIdAsync(id);
-                if (Order == null)
+                var order = await _repo.GetOrderByIdAsync(id);
+                if (order == null)
                 {
-                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
+                    return NotFound("Không tìm thấy đơn hàng."); // Thêm thông báo khi không tìm thấy
                 }
-                return Ok(Order);
+                return Ok(order);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
 
-        // POST: api/Categories
+        // POST: api/Orders
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
             if (model == null)
             {
-                return BadRequest("Order data is null.");
+                return BadRequest("Dữ liệu đơn hàng bị trống."); // Thay đổi thông báo cho rõ ràng hơn
             }
 
             try
@@ -75,7 +76,7 @@ namespace ApiNetCore8.Controllers
 
                 if (newOrderId <= 0)
                 {
-                    return BadRequest("Order creation was not successful.");
+                    return BadRequest("Tạo đơn hàng không thành công."); // Thay đổi thông báo cho rõ ràng hơn
                 }
 
                 var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
@@ -84,59 +85,7 @@ namespace ApiNetCore8.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
-            }
-        }
-
-
-        // PUT: api/Categories/5
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
-        {
-            if (model == null) // Kiểm tra nếu model là null
-            {
-                return BadRequest("Order data is null.");
-            }
-
-            try
-            {
-                // Kiểm tra xem danh mục có tồn tại không
-                var existingOrder = await _repo.GetOrderByIdAsync(id);
-                if (existingOrder == null)
-                {
-                    return NotFound();
-                }
-
-                await _repo.UpdateOrderAsync(id, model);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-
-
-        // DELETE: api/Categories/5
-        [HttpDelete("{id}")]
-        [Authorize]
-        public async Task<ActionResult> DeleteOrder(int id)
-        {
-            try
-            {
-                var existingOrder = await _repo.GetOrderByIdAsync(id);
-                if (existingOrder == null)
-                {
-                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
-                }
-
-                await _repo.DeleteOrderAsync(id); // Gọi phương thức xóa
-                return NoContent(); // Trả về 204 No Content nếu xóa thành công
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
     }
