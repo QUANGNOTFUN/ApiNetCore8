@@ -11,7 +11,7 @@ namespace ApiNetCore8.Data
 
         [Required]
         [MaxLength(255)]
-        public string ProductName { get; set; }
+        public required string ProductName { get; set; }
 
         [MaxLength(1000)]
         public string? Description { get; set; }
@@ -29,7 +29,7 @@ namespace ApiNetCore8.Data
         [ForeignKey("Category")]
         public int CategoryID { get; set; }
 
-        public virtual Category Category { get; set; }
+        public virtual Category? Category { get; set; }
 
         // Khởi tạo tập hợp OrderDetails
         public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();

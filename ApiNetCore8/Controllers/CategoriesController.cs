@@ -22,7 +22,7 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/Categories
+        // GET: api/Categories/all-category?page={page}&pageSize={pageSize}
         [HttpGet("all-category")]
         //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<IEnumerable<CategoryModel>>> GetAllCategories(int page = 1, int pageSize = 20)
@@ -47,12 +47,12 @@ namespace ApiNetCore8.Controllers
         // GET: api/Categories/find-category?name={name}
         [HttpGet("find-category")]
         //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<List<CategoryModel>>> GetCategoryByName(string name, int page = 1, int pageSize = 20)
+        public async Task<ActionResult<List<CategoryModel>>> FindCategory(string name, int page = 1, int pageSize = 20)
         {
             try
             {
                 // Tìm danh mục có tên chứa chuỗi ký tự 'name' (không phân biệt hoa thường)
-                var categories = await _repo.GetCategoriesByNameAsync(name, page, pageSize);
+                var categories = await _repo.FindCategoriesAsync(name, page, pageSize);
 
                 if (categories == null || !categories.Items.Any())
                 {
@@ -68,7 +68,7 @@ namespace ApiNetCore8.Controllers
         }
 
 
-        // POST: api/Categories
+        // POST: api/Categories/add-category?model={formbody}
         [HttpPost("add-category")]
         //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<CategoryModel>> AddCategory(CategoryModel model)
@@ -100,7 +100,7 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Categories/update-category?id={id}&model={formbody}
         [HttpPut("update-category")]
         //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult> UpdateCategory(int id, CategoryModel model)
@@ -128,7 +128,7 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/Categories/deleete-category?id={id}
         [HttpDelete("delete-category")]
         //[Authorize(Roles = InventoryRole.Admin)]
         public async Task<ActionResult> DeleteCategory(int id)

@@ -8,7 +8,7 @@ namespace ApiNetCore8.Repositores
 
         public Task<PagedResult<CategoryModel>> GetAllCategoryAsync(int page, int pageSize);
 
-        public Task<PagedResult<CategoryModel>> GetCategoriesByNameAsync(string name, int page, int pageSize);
+        public Task<PagedResult<CategoryModel>> FindCategoriesAsync(string name, int page, int pageSize);
 
         public Task<CategoryModel> GetCategoryByIdAsync(int id);
 

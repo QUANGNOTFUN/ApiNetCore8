@@ -2,6 +2,7 @@
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositores;
 using AutoMapper;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiNetCore8.Repositories
@@ -104,7 +105,7 @@ namespace ApiNetCore8.Repositories
         }
 
         // Tìm kiếm danh mục
-        public async Task<PagedResult<CategoryModel>> GetCategoriesByNameAsync(string name, int page, int pageSize)
+        public async Task<PagedResult<CategoryModel>> FindCategoriesAsync(string name, int page, int pageSize)
         {
             // Đếm tổng số danh mục có tên chứa ký tự 'name'
             var totalCategories = await _context.Categories
@@ -136,7 +137,7 @@ namespace ApiNetCore8.Repositories
 
             if (category == null)
             {
-                return null;
+                throw new KeyNotFoundException("Không có danh mục tồn tại");
             }
             return _mapper.Map<CategoryModel>(category);
         }

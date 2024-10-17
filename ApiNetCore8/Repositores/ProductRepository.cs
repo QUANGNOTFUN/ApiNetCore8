@@ -18,6 +18,12 @@ namespace ApiNetCore8.Repositores
         }
         public async Task<int> AddProductAsync(ProductModel model)
         {
+            model.ProductID = 0;
+            if (model.Description == null || model.Description == "string")
+            {
+                model.Description = null;
+            }
+
             var newProduct = _mapper.Map<Product>(model);
             var category = await _context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.CategoryId == model.CategoryID);
 
@@ -39,6 +45,32 @@ namespace ApiNetCore8.Repositores
         {
             throw new NotImplementedException();
         }
+
+        public async Task<PagedResult<ProductModel>> FindProductsAsync(String name, int page, int pageSize)
+        {
+            // Đếm tổng số danh mục có tên chứa ký tự 'name'
+            var totalProducts = await _context.Products
+                .Where(p => p.ProductName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .CountAsync();
+
+            // Lấy danh mục theo tên với phân trang
+            var products = await _context.Products
+                .Where(p => p.ProductName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
+                .ToListAsync();
+
+            var ProductModels = _mapper.Map<List<ProductModel>>(products);
+
+            return new PagedResult<ProductModel>
+            {
+                Items = ProductModels,
+                TotalCount = totalProducts,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
+        }
+
         public async Task<PagedResult<ProductModel>> GetAllProductsAsync(int page, int pageSize)
         {
             var totalProducts = await _context.Products.CountAsync(); // Đếm tổng số sản phẩm
@@ -86,11 +118,12 @@ namespace ApiNetCore8.Repositores
         {
             var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == id);
 
-            if (product == null)
+            if (product != null)
             {
-                return null;
+                return _mapper.Map<ProductModel>(product);
             }
-            return _mapper.Map<ProductModel>(product);
+            
+            throw new NotImplementedException("Không tìm thấy sản phẩm");
         }
 
         public Task UpdateProductAsync(int id, ProductModel model)

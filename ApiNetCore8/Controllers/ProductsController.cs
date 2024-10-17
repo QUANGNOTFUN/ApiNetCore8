@@ -18,9 +18,9 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // Lấy tất cả sản phẩm với phân trang
+        // GET: api/Products/all-product?page={page}&pageSize={pageSize}
         [HttpGet("all-product")]
-        public async Task<ActionResult<PagedResult<ProductModel>>> GetAllProducts(int page, int pageSize = 20)
+        public async Task<ActionResult<PagedResult<ProductModel>>> GetAllProducts(int page = 1, int pageSize = 20)
         {
             try
             {
@@ -38,10 +38,10 @@ namespace ApiNetCore8.Controllers
         }
 
 
-        // Lấy tất cả sản phẩm đang thiếu
-        [HttpGet("low-stock")] // Đặt route là /api/products/low-stock
+        // GET: api/Products/low-stock?page={page}&pageSize={pageSize}
+        [HttpGet("low-stock")]
         // [Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<IEnumerable<ProductModel>>> GetLowStockProducts(int page, int pageSize = 20)
+        public async Task<ActionResult<IEnumerable<ProductModel>>> GetLowStockProducts(int page = 1, int pageSize = 20)
         {
             try
             {
@@ -58,28 +58,50 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-
-        // Lấy sản phẩm theo ID
-        [HttpGet("product{id}")]
-        [Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<ProductModel>> GetProductById(int id)
+        // GET: api/products/find-product?name={name}
+        [HttpGet("find-product")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<List<ProductModel>>> FindProduct(string name, int page = 1, int pageSize = 20)
         {
             try
             {
-                var product = await _repo.GetProductByIdAsync(id);
-                if (product == null)
+                // Tìm danh mục có tên chứa chuỗi ký tự 'name' (không phân biệt hoa thường)
+                var products = await _repo.FindProductsAsync(name, page, pageSize);
+
+                if (products == null || !products.Items.Any())
                 {
-                    return NotFound("Không tìm thấy sản phẩm");
+                    return NotFound("Không tìm thấy danh mục."); // Thông báo nếu không có kết quả
                 }
-                return Ok(product);
+
+                return Ok(products);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message); // Xử lý lỗi hệ thống
             }
         }
 
-        // Thêm sản phẩm mới
+        // Lấy sản phẩm theo ID
+        //[HttpGet("product{id}")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        //public async Task<ActionResult<ProductModel>> GetProductById(int id)
+        //{
+        //    try
+        //    {
+        //        var product = await _repo.GetProductByIdAsync(id);
+        //        if (product == null)
+        //        {
+        //            return NotFound("Không tìm thấy sản phẩm");
+        //        }
+        //        return Ok(product);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+        //    }
+        //}
+
+        // POST: api/Products/add-product?model={formbody}
         [HttpPost("add-product")]
         //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<ProductModel>> AddProduct(ProductModel model)
@@ -101,7 +123,7 @@ namespace ApiNetCore8.Controllers
                 var newProduct = await _repo.GetProductByIdAsync(newProductId);
 
                 // Trả về kết quả thành công
-                return CreatedAtAction(nameof(GetProductById), new { id = newProduct.ProductID }, newProduct);
+                return CreatedAtAction(nameof(AddProduct), new { id = newProduct.ProductID }, newProduct);
             }
             catch (Exception ex)
             {
@@ -109,8 +131,8 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // Cập nhật sản phẩm
-        [HttpPut("update-product{id}")]
+        // PUT: api/Products/update-product?id={id}&model={formbody}
+        [HttpPut("update-product")]
         [Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult> UpdateProduct(int id, ProductModel model)
         {
@@ -137,7 +159,7 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // Xóa sản phẩm
+        // DELETE: api/Products/deleete-product?id={id}
         //[HttpDelete("delete-product{id}")]
         //[Authorize(Roles = InventoryRole.Admin)]
         //public async Task<ActionResult> DeleteProduct(int id)
