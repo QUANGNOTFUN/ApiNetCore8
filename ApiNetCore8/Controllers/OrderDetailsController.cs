@@ -6,6 +6,7 @@ using ApiNetCore8.Models;
 using ApiNetCore8.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using ApiNetCore8.Repositores;
+using System.Drawing.Printing;
 
 namespace ApiNetCore8.Controllers
 {
@@ -23,16 +24,18 @@ namespace ApiNetCore8.Controllers
         // GET: api/OrderDetails
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetAllOrderDetails()
+        public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetAllOrderDetails(int page = 1, int pageSize = 20)
         {
             try
             {
-                var orderDetails = await _repo.GetAllOrderDetailAsync();
-                if (orderDetails == null || !orderDetails.Any())
+                var pagedOrderDetails = await _repo.GetAllOrderDetailAsync(page, pageSize);
+
+                if (pagedOrderDetails == null || !pagedOrderDetails.Items.Any())
                 {
-                    return NotFound("Không có chi tiết đơn hàng nào."); // Thêm thông báo khi không tìm thấy chi tiết
+                    return NotFound("Không tìm thấy chi tiết đơn hàng.");
                 }
-                return Ok(orderDetails);
+
+                return Ok(pagedOrderDetails);
             }
             catch (Exception ex)
             {
@@ -88,5 +91,75 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
+        [HttpGet("find-OrderDetail")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<List<OrderDetailModel>>> FindOrderDetail(string name, int page = 1, int pageSize = 20)
+        {
+            try
+            {
+                // Tìm danh mục có tên chứa chuỗi ký tự 'name' (không phân biệt hoa thường)
+                var OrderDetails = await _repo.FindOrderDetailAsync(name, page, pageSize);
+
+                if (OrderDetails == null || !OrderDetails.Items.Any())
+                {
+                    return NotFound("Không tìm thấy chi tiết đơn hàng."); // Thông báo nếu không có kết quả
+                }
+
+                return Ok(OrderDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message); // Xử lý lỗi hệ thống
+            }
+        }
+
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<ActionResult> UpdateOrderDetail(int id, OrderDetailModel model)
+        {
+            if (model == null) // Kiểm tra nếu model là null
+            {
+                return BadRequest("OrderDetail data is null.");
+            }
+
+            try
+            {
+                // Kiểm tra xem danh mục có tồn tại không
+                var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(id);
+                if (existingOrderDetail == null)
+                {
+                    return NotFound();
+                }
+
+                await _repo.UpdateOrderDetailAsync(id, model);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+        [Authorize]
+        public async Task<ActionResult> DeleteOrderDetail(int id)
+        {
+            try
+            {
+                var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(id);
+                if (existingOrderDetail == null)
+                {
+                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
+                }
+
+                await _repo.DeleteOrderDetailAsync(id); // Gọi phương thức xóa
+                return NoContent(); // Trả về 204 No Content nếu xóa thành công
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
+
