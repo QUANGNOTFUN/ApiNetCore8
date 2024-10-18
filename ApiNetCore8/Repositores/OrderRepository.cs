@@ -1,19 +1,22 @@
 ﻿using ApiNetCore8.Data;
 using ApiNetCore8.Models;
+using ApiNetCore8.Repositores;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-
+using static NuGet.Packaging.PackagingConstants;
 namespace ApiNetCore8.Repositores
 {
     public class OrderRepository : IOrderRepository
     {
         private readonly InventoryContext _context;
         private readonly IMapper _mapper;
+     
 
         public OrderRepository(InventoryContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
+           
         }
 
         public async Task<int> AddOrderAsync(OrderModel model)
@@ -40,65 +43,68 @@ namespace ApiNetCore8.Repositores
             }
         }
 
-        public async Task<List<OrderModel>> GetAllOrderAsync()
+        public async Task<PagedResult<OrderModel>> FindOrderAsync(string name, int page, int pageSize)
         {
-            var orders = await _context.Orders
-                .Include(o => o.Supplier) // Bao gồm thông tin nhà cung cấp
-                .ToListAsync();
+            // Đếm tổng số danh mục có tên chứa ký tự 'name'
+            var totalOrder = await _context.Orders
+                .Where(c => c.OrderName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .CountAsync();
 
-            return _mapper.Map<List<OrderModel>>(orders);
+            // Lấy danh mục theo tên với phân trang
+            var Orders = await _context.Orders
+                .Where(c => c.OrderName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
+            .ToListAsync();
+
+            var orderModels = _mapper.Map<List<OrderModel>>(Orders);
+
+            return new PagedResult<OrderModel>
+            {
+                Items = orderModels,
+                TotalCount = totalOrder,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
         }
 
-        public async Task<List<OrderModel>> GetLimitedOrdersAsync(int limit)
+        public async Task<PagedResult<OrderModel>> GetAllOrderAsync(int page, int pageSize)
         {
-            var orders = await _context.Orders
-                .Include(o => o.Supplier) // Bao gồm thông tin nhà cung cấp
-                .Take(limit)
+            var totalOrder = await _context.Orders.CountAsync(); // Đếm tổng số danh mục
+            var Orders = await _context.Orders
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
                 .ToListAsync();
 
-            return _mapper.Map<List<OrderModel>>(orders);
+            var orderModels = _mapper.Map<List<OrderModel>>(Orders);
+
+            return new PagedResult<OrderModel>
+            {
+                Items = orderModels,
+                TotalCount = totalOrder,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
         }
 
         public async Task<OrderModel> GetOrderByIdAsync(int id)
         {
-            var order = await _context.Orders
-                .Include(o => o.Supplier) // Bao gồm thông tin nhà cung cấp
-                .FirstOrDefaultAsync(o => o.OrderId == id);
-
-            return _mapper.Map<OrderModel>(order);
+            var Order = await _context.Orders.FindAsync(id);
+            return _mapper.Map<OrderModel>(Order);
         }
 
-        // Phương thức tìm kiếm với phân trang
-        public async Task<List<OrderModel>> SearchOrdersAsync(DateTime? startDate, DateTime? endDate, int page, int pageSize)
+        public async Task UpdateOrderAsync(int id, OrderModel model)
         {
-            var query = _context.Orders.Include(o => o.Supplier).AsQueryable();
-
-            if (startDate.HasValue)
+            var Order = await _context.Orders.FindAsync(id);
+            if (Order == null)
             {
-                query = query.Where(o => o.OrderDate >= startDate.Value);
+                throw new KeyNotFoundException("Order not found");
             }
 
-            if (endDate.HasValue)
-            {
-                query = query.Where(o => o.OrderDate <= endDate.Value);
-            }
+            _mapper.Map(model, Order);
 
-            var orders = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return _mapper.Map<List<OrderModel>>(orders);
-        }
-
-        public Task<List<OrderModel>> SearchOrdersAsync(string searchTerm, int page, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateOrderAsync(int id, OrderModel model)
-        {
-            throw new NotImplementedException();
+            _context.Orders.Update(Order);
+            await _context.SaveChangesAsync();
         }
     }
 }

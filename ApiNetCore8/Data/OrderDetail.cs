@@ -8,6 +8,7 @@ namespace ApiNetCore8.Data
     {
         [Key]
         public int OrderDetailId { get; set; }
+        public string OrderDetailName { get; set; }
 
         [ForeignKey("Order")]
         public int OrderId { get; set; }

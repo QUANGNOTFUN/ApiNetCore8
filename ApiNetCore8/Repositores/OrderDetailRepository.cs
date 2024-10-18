@@ -55,13 +55,6 @@ namespace ApiNetCore8.Repositories
                 throw new KeyNotFoundException("OrderDetail not found");
             }
         }
-
-        public async Task<List<OrderDetailModel>> GetAllOrderDetailAsync()
-        {
-            var OrderDetails = await _context.OrderDetails.ToListAsync();
-            return _mapper.Map<List<OrderDetailModel>>(OrderDetails);
-        }
-
         public async Task<OrderDetailModel> GetOrderDetailByIdAsync(int id)
         {
             var OrderDetail = await _context.OrderDetails.FindAsync(id);
@@ -81,37 +74,51 @@ namespace ApiNetCore8.Repositories
             _context.OrderDetails.Update(OrderDetail);
             await _context.SaveChangesAsync();
         }
-        public async Task<List<OrderDetailModel>> SearchOrderDetailsAsync(string searchTerm, int page, int pageSize)
-        {
-            var query = _context.OrderDetails
-                .Include(od => od.Product)
-                .Include(od => od.Order)
-                .AsQueryable();
+       
 
-            if (!string.IsNullOrEmpty(searchTerm))
+      
+        public async Task<PagedResult<OrderDetailModel>> FindOrderDetailAsync(string name, int page, int pageSize)
+        {
+            // Đếm tổng số danh mục có tên chứa ký tự 'name'
+            var totalOrderDetails = await _context.OrderDetails
+                .Where(c => c.OrderDetailName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .CountAsync();
+
+            // Lấy danh mục theo tên với phân trang
+            var OrderDetails = await _context.OrderDetails
+                .Where(c => c.OrderDetailName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
+                .ToListAsync();
+
+            var OrderDetailModel = _mapper.Map<List<OrderDetailModel>>(OrderDetails);
+
+            return new PagedResult<OrderDetailModel>
             {
-                // Giả sử tìm kiếm theo ProductName
-                query = query.Where(od => od.Product.ProductName.Contains(searchTerm));
-            }
-
-            var orderDetails = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return _mapper.Map<List<OrderDetailModel>>(orderDetails);
+                Items = OrderDetailModel,
+                TotalCount = totalOrderDetails,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
         }
 
-        // Thêm phương thức lấy 20 sản phẩm
-        public async Task<List<OrderDetailModel>> GetLimitedOrderDetailsAsync(int limit)
+        public async Task<PagedResult<OrderDetailModel>> GetAllOrderDetailAsync(int page, int pageSize)
         {
-            var orderDetails = await _context.OrderDetails
-                .Include(od => od.Product)
-                .Include(od => od.Order)
-                .Take(limit)
+            var totalOrderDetails = await _context.OrderDetails.CountAsync(); // Đếm tổng số danh mục
+            var OrderDetails = await _context.OrderDetails
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
                 .ToListAsync();
 
-            return _mapper.Map<List<OrderDetailModel>>(orderDetails);
-        }
-    }
+            var OrderDetailModel = _mapper.Map<List<OrderDetailModel>>(OrderDetails);
+
+            return new PagedResult<OrderDetailModel>
+            {
+                Items =OrderDetailModel,
+                TotalCount = totalOrderDetails,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
+        
+    }}
 }
