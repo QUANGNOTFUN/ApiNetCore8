@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ApiNetCore8.Models;
@@ -20,18 +21,20 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/Orders
-        [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders()
+        // GET: api/Orders/all-Order?page={page}&pageSize={pageSize}
+        [HttpGet("all-Order")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page = 1, int pageSize = 20)
         {
             try
             {
-                var orders = await _repo.GetAllOrderAsync();
-                if (orders == null || !orders.Any())
+                var orders = await _repo.GetAllOrderAsync(page, pageSize);
+
+                if (orders == null || !orders.Items.Any())
                 {
-                    return NotFound("Không có đơn hàng nào."); // Thêm thông báo khi không tìm thấy đơn hàng
+                    return NotFound("Không có đơn hàng nào.");
                 }
+
                 return Ok(orders);
             }
             catch (Exception ex)
@@ -40,19 +43,21 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<OrderModel>> GetOrderById(int id)
+        // GET: api/Orders/find-Order?id={id}&page={page}&pageSize={pageSize}
+        [HttpGet("find-Order")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<IEnumerable<OrderModel>>> FindOrder(int id, int page = 1, int pageSize = 20)
         {
             try
             {
-                var order = await _repo.GetOrderByIdAsync(id);
-                if (order == null)
+                var orders = await _repo.FindOrdersAsync(id, page, pageSize);
+
+                if (orders == null || !orders.Items.Any())
                 {
-                    return NotFound("Không tìm thấy đơn hàng."); // Thêm thông báo khi không tìm thấy
+                    return NotFound("Không tìm thấy đơn hàng.");
                 }
-                return Ok(order);
+
+                return Ok(orders);
             }
             catch (Exception ex)
             {
@@ -60,28 +65,80 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // POST: api/Orders
-        [HttpPost]
-        [Authorize]
+        // POST: api/Orders/add-Order
+        [HttpPost("add-Order")]
+        //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
             if (model == null)
             {
-                return BadRequest("Dữ liệu đơn hàng bị trống."); // Thay đổi thông báo cho rõ ràng hơn
+                return BadRequest("Dữ liệu đơn hàng bị trống.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             try
             {
                 var newOrderId = await _repo.AddOrderAsync(model);
-
                 if (newOrderId <= 0)
                 {
-                    return BadRequest("Tạo đơn hàng không thành công."); // Thay đổi thông báo cho rõ ràng hơn
+                    return BadRequest("Tạo đơn hàng không thành công.");
                 }
 
                 var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
+                return CreatedAtAction(nameof(AddOrder), new { id = newOrderId }, newOrder);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
 
-                return CreatedAtAction(nameof(GetOrderById), new { id = newOrderId }, newOrder);
+        // PUT: api/Orders/update-Order?id={id}
+        [HttpPut("update-Order")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
+        {
+            if (model == null)
+            {
+                return BadRequest("Dữ liệu đơn hàng bị trống.");
+            }
+
+            try
+            {
+                var existingOrder = await _repo.GetOrderByIdAsync(id);
+                if (existingOrder == null)
+                {
+                    return NotFound("Không tìm thấy đơn hàng.");
+                }
+
+                await _repo.UpdateOrderAsync(id, model);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
+
+        // DELETE: api/Orders/delete-Order?id={id}
+        [HttpDelete("delete-Order")]
+        //[Authorize(Roles = InventoryRole.Admin)]
+        public async Task<ActionResult> DeleteOrder(int id)
+        {
+            try
+            {
+                var existingOrder = await _repo.GetOrderByIdAsync(id);
+                if (existingOrder == null)
+                {
+                    return NotFound("Không tìm thấy đơn hàng.");
+                }
+
+                await _repo.DeleteOrderAsync(id);
+                return NoContent();
             }
             catch (Exception ex)
             {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ApiNetCore8.Models;
-using ApiNetCore8.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using ApiNetCore8.Repositores;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiNetCore8.Controllers
 {
@@ -20,18 +20,20 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/OrderDetails
-        [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetAllOrderDetails()
+        // GET: api/OrderDetails/all-OrderDetails?page={page}&pageSize={pageSize}
+        [HttpGet("all-OrderDetails")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetAllOrderDetails(int page = 1, int pageSize = 20)
         {
             try
             {
-                var orderDetails = await _repo.GetAllOrderDetailAsync();
+                var orderDetails = await _repo.GetAllOrderDetailAsync(page, pageSize);
+
                 if (orderDetails == null || !orderDetails.Any())
                 {
-                    return NotFound("Không có chi tiết đơn hàng nào."); // Thêm thông báo khi không tìm thấy chi tiết
+                    return NotFound("Không có chi tiết đơn hàng nào.");
                 }
+
                 return Ok(orderDetails);
             }
             catch (Exception ex)
@@ -40,18 +42,20 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // GET: api/OrderDetails/5
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<OrderDetailModel>> GetOrderDetailById(int id)
+        // GET: api/OrderDetails/find-OrderDetail?id={id}&page={page}&pageSize={pageSize}
+        [HttpGet("find-OrderDetail")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<OrderDetailModel>> FindOrderDetail(int id)
         {
             try
             {
                 var orderDetail = await _repo.GetOrderDetailByIdAsync(id);
+
                 if (orderDetail == null)
                 {
-                    return NotFound("Không tìm thấy chi tiết đơn hàng."); // Thêm thông báo khi không tìm thấy
+                    return NotFound("Không tìm thấy chi tiết đơn hàng.");
                 }
+
                 return Ok(orderDetail);
             }
             catch (Exception ex)
@@ -60,28 +64,80 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // POST: api/OrderDetails
-        [HttpPost]
-        [Authorize]
+        // POST: api/OrderDetails/add-OrderDetail
+        [HttpPost("add-OrderDetail")]
+        //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<OrderDetailModel>> AddOrderDetail(OrderDetailModel model)
         {
             if (model == null)
             {
-                return BadRequest("Dữ liệu chi tiết đơn hàng bị trống."); // Thay đổi thông báo cho rõ ràng hơn
+                return BadRequest("Dữ liệu chi tiết đơn hàng bị trống.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             try
             {
                 var newOrderDetailId = await _repo.AddOrderDetailAsync(model);
-
                 if (newOrderDetailId <= 0)
                 {
-                    return BadRequest("Tạo chi tiết đơn hàng không thành công."); // Thay đổi thông báo cho rõ ràng hơn
+                    return BadRequest("Tạo chi tiết đơn hàng không thành công.");
                 }
 
                 var newOrderDetail = await _repo.GetOrderDetailByIdAsync(newOrderDetailId);
+                return CreatedAtAction(nameof(AddOrderDetail), new { id = newOrderDetailId }, newOrderDetail);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
 
-                return CreatedAtAction(nameof(GetOrderDetailById), new { id = newOrderDetailId }, newOrderDetail);
+        // PUT: api/OrderDetails/update-OrderDetail?id={id}
+        [HttpPut("update-OrderDetail")]
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult> UpdateOrderDetail(int id, OrderDetailModel model)
+        {
+            if (model == null)
+            {
+                return BadRequest("Dữ liệu chi tiết đơn hàng bị trống.");
+            }
+
+            try
+            {
+                var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(id);
+                if (existingOrderDetail == null)
+                {
+                    return NotFound("Không tìm thấy chi tiết đơn hàng.");
+                }
+
+                await _repo.UpdateOrderDetailAsync(id, model);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
+
+        // DELETE: api/OrderDetails/delete-OrderDetail?id={id}
+        [HttpDelete("delete-OrderDetail")]
+        //[Authorize(Roles = InventoryRole.Admin)]
+        public async Task<ActionResult> DeleteOrderDetail(int id)
+        {
+            try
+            {
+                var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(id);
+                if (existingOrderDetail == null)
+                {
+                    return NotFound("Không tìm thấy chi tiết đơn hàng.");
+                }
+
+                await _repo.DeleteOrderDetailAsync(id);
+                return NoContent();
             }
             catch (Exception ex)
             {
