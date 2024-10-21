@@ -17,6 +17,6 @@ namespace ApiNetCore8.Repositores
         public Task UpdateOrderAsync(int id, OrderModel model);
 
         public Task DeleteOrderAsync(int id);
-   
+        Task FindSuppliersAsync(int id, int page, int pageSize);
     }
 }

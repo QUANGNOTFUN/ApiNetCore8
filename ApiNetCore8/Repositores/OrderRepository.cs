@@ -166,5 +166,10 @@ namespace ApiNetCore8.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Task FindSuppliersAsync(int id, int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
