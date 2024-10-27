@@ -22,7 +22,7 @@ namespace ApiNetCore8.Controllers
         }
 
         // GET: api/OrderDetails
-        [HttpGet]
+        [HttpGet("all-OrderDetails")]
         ////[Authorize]
         public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetAllOrderDetails(int page = 1, int pageSize = 20)
         {
@@ -44,7 +44,7 @@ namespace ApiNetCore8.Controllers
         }
 
         // GET: api/OrderDetails/5
-        [HttpGet("{id}")]
+        [HttpGet("Get-OrderDetail")]
         //[Authorize]
         public async Task<ActionResult<OrderDetailModel>> GetOrderDetailById(int id)
         {
@@ -64,7 +64,7 @@ namespace ApiNetCore8.Controllers
         }
 
         // POST: api/OrderDetails
-        [HttpPost]
+        [HttpPost("add-OrderDetail")]
         //[Authorize]
         public async Task<ActionResult<OrderDetailModel>> AddOrderDetail(OrderDetailModel model)
         {
@@ -114,7 +114,7 @@ namespace ApiNetCore8.Controllers
         }
 
 
-        [HttpPut("{id}")]
+        [HttpPut("update-OrderDetail")]
         //[Authorize]
         public async Task<ActionResult> UpdateOrderDetail(int id, OrderDetailModel model)
         {
@@ -141,7 +141,7 @@ namespace ApiNetCore8.Controllers
             }
 
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-OrderDetail")]
         //[Authorize]
         public async Task<ActionResult> DeleteOrderDetail(int id)
         {

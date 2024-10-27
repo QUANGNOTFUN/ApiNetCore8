@@ -23,7 +23,7 @@ namespace ApiNetCore8.Controllers
         }
 
         // GET: api/Orders
-        [HttpGet]
+        [HttpGet("all-Orders")]
         //[Authorize]
         public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page, int pageSize)
         {
@@ -45,7 +45,7 @@ namespace ApiNetCore8.Controllers
         }
 
         // GET: api/Orders/5
-        [HttpGet("{id}")]
+        [HttpGet("find-Order")]
         //[Authorize]
         public async Task<ActionResult<OrderModel>> GetOrderById(int id)
         {
@@ -66,7 +66,7 @@ namespace ApiNetCore8.Controllers
 
 
         // POST: api/Orders
-        [HttpPost]
+        [HttpPost("add-Order")]
         //[Authorize]
         public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
@@ -93,7 +93,7 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
-        [HttpPut("{id}")]
+        [HttpPut("update-Order")]
         //[Authorize]
         public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
         {
@@ -119,7 +119,7 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-Order")]
         //[Authorize]
         public async Task<ActionResult> DeleteOrder(int id)
         {
@@ -139,28 +139,6 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("find-OrderDetail")]
-        //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<List<OrderModel>>> FindOrder(string name, int page = 1, int pageSize = 20)
-        {
-            try
-            {
-                // Tìm danh mục có tên chứa chuỗi ký tự 'name' (không phân biệt hoa thường)
-                var Orders = await _repo.FindOrderAsync(name, page, pageSize);
-
-                if (Orders == null || !Orders.Items.Any())
-                {
-                    return NotFound("Không tìm thấy chi tiết đơn hàng."); // Thông báo nếu không có kết quả
-                }
-
-                return Ok(Orders);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message); // Xử lý lỗi hệ thống
-            }
-        }
-
 
     }
 }
