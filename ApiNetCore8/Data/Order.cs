@@ -18,6 +18,5 @@ namespace ApiNetCore8.Data
 
         public virtual Supplier Supplier { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
-        public object Products { get; internal set; }
     }
 }
