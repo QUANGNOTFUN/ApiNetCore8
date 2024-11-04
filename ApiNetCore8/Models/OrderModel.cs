@@ -7,7 +7,7 @@ namespace ApiNetCore8.Models
     {
 
         public int OrderId { get; set; }
-
+        public string OrderName { get; set; }
         [Required]
         public DateTime OrderDate { get; set; }
 

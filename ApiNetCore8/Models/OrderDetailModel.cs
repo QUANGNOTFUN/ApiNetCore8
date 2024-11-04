@@ -6,7 +6,7 @@ namespace ApiNetCore8.Models
     public class OrderDetailModel
     {
         public int OrderDetailId { get; set; }
-
+        public string OrderDetailName { get; set; }
         [ForeignKey("Order")]
         public int OrderId { get; set; }
 

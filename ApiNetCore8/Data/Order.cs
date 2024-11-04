@@ -9,6 +9,7 @@ namespace ApiNetCore8.Data
     {
         [Key]
         public int OrderId { get; set; }
+        public string OrderName { get; set; }
 
         [Required]
         public DateTime OrderDate { get; set; }

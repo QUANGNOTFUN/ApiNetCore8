@@ -17,92 +17,108 @@ namespace ApiNetCore8.Repositories
             _mapper = mapper;
         }
 
-        // Thêm OrderDetail mới
         public async Task<int> AddOrderDetailAsync(OrderDetailModel model)
         {
             var newOrderDetail = _mapper.Map<OrderDetail>(model);
 
-            // Kiểm tra xem Order và Product có tồn tại hay không
-            var existingOrder = await _context.Orders
-                .FirstOrDefaultAsync(e => e.OrderId == newOrderDetail.OrderId);
-            var existingProduct = await _context.Products
-                .FirstOrDefaultAsync(e => e.ProductID == newOrderDetail.ProductId);
+            var existingOrder = await _context.Orders.FirstOrDefaultAsync(e => e.OrderId == newOrderDetail.OrderId);
 
+            var existingProduct = await _context.Products.FirstOrDefaultAsync(e => e.ProductID == newOrderDetail.ProductId);
+
+            var existingOrderDetail = await _context.OrderDetails
+                                                 .FirstOrDefaultAsync(e => e.ProductId == newOrderDetail.ProductId);
             if (existingOrder == null || existingProduct == null)
             {
-                throw new ArgumentException("OrderId hoặc ProductId không tồn tại.");
+                throw new ArgumentException("ProductId hoặc OrderId chưa tồn tại"); 
             }
-
-            // Kiểm tra OrderDetail có trùng lặp không
-            var existingOrderDetail = await _context.OrderDetails
-                .FirstOrDefaultAsync(e => e.OrderId == newOrderDetail.OrderId && e.ProductId == newOrderDetail.ProductId);
-
             if (existingOrderDetail != null)
             {
-                throw new ArgumentException("OrderDetail cho sản phẩm này đã tồn tại.");
-            }
+                throw new ArgumentException("OrderDetailName already exists.");
+            } 
 
-            // Thêm OrderDetail mới
             await _context.OrderDetails.AddAsync(newOrderDetail);
             await _context.SaveChangesAsync();
 
             return newOrderDetail.OrderDetailId;
         }
 
-        // Xóa OrderDetail
         public async Task DeleteOrderDetailAsync(int id)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            if (orderDetail == null)
+            var OrderDetail = await _context.OrderDetails.FindAsync(id);
+            if (OrderDetail != null)
             {
-                throw new KeyNotFoundException("OrderDetail không tìm thấy.");
+                _context.OrderDetails.Remove(OrderDetail);
+                await _context.SaveChangesAsync();
             }
-
-            _context.OrderDetails.Remove(orderDetail);
-            await _context.SaveChangesAsync();
+            else
+            {
+                throw new KeyNotFoundException("OrderDetail not found");
+            }
         }
-
-        public Task FindOrderDetailsAsync(int id, int page, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        // Lấy tất cả OrderDetail
-        public async Task<List<OrderDetailModel>> GetAllOrderDetailAsync()
-        {
-            var orderDetails = await _context.OrderDetails.ToListAsync();
-            return _mapper.Map<List<OrderDetailModel>>(orderDetails);
-        }
-
-        public Task<List<OrderDetailModel>> GetAllOrderDetailAsync(int page, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        // Lấy OrderDetail theo ID
         public async Task<OrderDetailModel> GetOrderDetailByIdAsync(int id)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            if (orderDetail == null)
-            {
-                throw new KeyNotFoundException("OrderDetail không tìm thấy.");
-            }
-
-            return _mapper.Map<OrderDetailModel>(orderDetail);
+            var OrderDetail = await _context.OrderDetails.FindAsync(id);
+            return _mapper.Map<OrderDetailModel>(OrderDetail);
         }
 
-        // Cập nhật OrderDetail
         public async Task UpdateOrderDetailAsync(int id, OrderDetailModel model)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            if (orderDetail == null)
+            var OrderDetail = await _context.OrderDetails.FindAsync(id);
+            if (OrderDetail == null)
             {
-                throw new KeyNotFoundException("OrderDetail không tìm thấy.");
+                throw new KeyNotFoundException("OrderDetail not found");
             }
 
-            _mapper.Map(model, orderDetail);
-            _context.OrderDetails.Update(orderDetail);
+            _mapper.Map(model, OrderDetail);
+
+            _context.OrderDetails.Update(OrderDetail);
             await _context.SaveChangesAsync();
         }
-    }
+       
+
+      
+        public async Task<PagedResult<OrderDetailModel>> FindOrderDetailAsync(string name, int page, int pageSize)
+        {
+            // Đếm tổng số danh mục có tên chứa ký tự 'name'
+            var totalOrderDetails = await _context.OrderDetails
+                .Where(c => c.OrderDetailName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .CountAsync();
+
+            // Lấy danh mục theo tên với phân trang
+            var OrderDetails = await _context.OrderDetails
+                .Where(c => c.OrderDetailName.Contains(name)) // Điều kiện tìm kiếm theo tên
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
+                .ToListAsync();
+
+            var OrderDetailModel = _mapper.Map<List<OrderDetailModel>>(OrderDetails);
+
+            return new PagedResult<OrderDetailModel>
+            {
+                Items = OrderDetailModel,
+                TotalCount = totalOrderDetails,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
+        }
+
+        public async Task<PagedResult<OrderDetailModel>> GetAllOrderDetailAsync(int page, int pageSize)
+        {
+            var totalOrderDetails = await _context.OrderDetails.CountAsync(); // Đếm tổng số danh mục
+            var OrderDetails = await _context.OrderDetails
+                .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
+                .Take(pageSize) // Lấy số danh mục trong trang hiện tại
+                .ToListAsync();
+
+            var OrderDetailModel = _mapper.Map<List<OrderDetailModel>>(OrderDetails);
+
+            return new PagedResult<OrderDetailModel>
+            {
+                Items =OrderDetailModel,
+                TotalCount = totalOrderDetails,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
+        
+    }}
 }
