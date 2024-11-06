@@ -5,6 +5,7 @@ namespace ApiNetCore8.Models
 {
     public class OrderModel
     {
+
         public int OrderId { get; set; }
         public string OrderName { get; set; }
         [Required]

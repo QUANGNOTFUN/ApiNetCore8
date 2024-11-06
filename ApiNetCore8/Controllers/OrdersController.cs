@@ -24,7 +24,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page, int pageSize)
         {
             try
@@ -46,7 +46,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<OrderModel>> GetOrderById(int id)
         {
             try
@@ -67,7 +67,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Orders
         [HttpPost]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
             if (model == null)
@@ -94,7 +94,7 @@ namespace ApiNetCore8.Controllers
             }
         }
         [HttpPut("{id}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
@@ -120,7 +120,7 @@ namespace ApiNetCore8.Controllers
             }
         }
         [HttpDelete("{id}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult> DeleteOrder(int id)
         {
             try
