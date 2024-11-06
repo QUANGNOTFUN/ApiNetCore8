@@ -11,7 +11,7 @@ namespace ApiNetCore8.Models
         public required string SupplierName { get; set; }
 
         [Required]
-        [MaxLength(100)]
+        [MaxLength(20)]
         public required string ContactInfo { get; set; }
 
         public int CategoryId { get; set; }

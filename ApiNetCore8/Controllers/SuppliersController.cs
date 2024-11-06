@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using ApiNetCore8.Helpers;
 
 namespace ApiNetCore8.Controllers
 {
@@ -19,40 +20,38 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/Suppliers/all-Supplier?page={page}&pageSize={pageSize}
-        [HttpGet("all-Supplier")]
-        public async Task<ActionResult<IEnumerable<SupplierModel>>> GetAllSuppliers(int page = 1, int pageSize = 20)
+        // GET: api/Suppliers
+        [HttpGet]
+        [Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<IEnumerable<SupplierModel>>> GetAllSuppliers()
         {
             try
             {
-                var suppliers = await _repo.GetAllSuppliersAsync(page, pageSize);
-
+                var suppliers = await _repo.GetAllSuppliersAsync();
                 if (suppliers == null || !suppliers.Any())
                 {
-                    return NotFound("Không có nhà cung cấp nào.");
+                    return NotFound("Không có nhà cung cấp nào."); // Thêm thông báo khi không có nhà cung cấp
                 }
-
                 return Ok(suppliers);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message); // Cung cấp thông tin chi tiết về lỗi
             }
         }
 
-        // GET: api/Suppliers/find-Supplier?id={id}
-        [HttpGet("find-Supplier")]
-        public async Task<ActionResult<SupplierModel>> FindSupplier(int id)
+        // GET: api/Suppliers/5
+        [HttpGet("{id}")]
+        [Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult<SupplierModel>> GetSupplierById(int id)
         {
             try
             {
                 var supplier = await _repo.GetSupplierByIdAsync(id);
-
                 if (supplier == null)
                 {
-                    return NotFound("Không tìm thấy nhà cung cấp.");
+                    return NotFound("Không tìm thấy nhà cung cấp."); // Thêm thông báo không tìm thấy
                 }
-
                 return Ok(supplier);
             }
             catch (Exception ex)
@@ -61,30 +60,27 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // POST: api/Suppliers/add-Supplier
-        [HttpPost("add-Supplier")]
+        // POST: api/Suppliers
+        [HttpPost]
+        [Authorize(Roles = InventoryRole.Manager)]
         public async Task<ActionResult<SupplierModel>> AddSupplier(SupplierModel model)
         {
             if (model == null)
             {
-                return BadRequest("Dữ liệu nhà cung cấp bị trống.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
+                return BadRequest("Thông tin nhà cung cấp bị trống."); // Thay đổi thông báo cho rõ ràng hơn
             }
 
             try
             {
                 var newSupplierId = await _repo.AddSupplierAsync(model);
+
                 if (newSupplierId <= 0)
                 {
-                    return BadRequest("Tạo nhà cung cấp không thành công.");
+                    return BadRequest("Tạo nhà cung cấp không thành công."); // Thay đổi thông báo cho rõ ràng hơn
                 }
 
                 var newSupplier = await _repo.GetSupplierByIdAsync(newSupplierId);
-                return CreatedAtAction(nameof(AddSupplier), new { id = newSupplierId }, newSupplier);
+                return CreatedAtAction(nameof(GetSupplierById), new { id = newSupplierId }, newSupplier);
             }
             catch (Exception ex)
             {
@@ -92,13 +88,14 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // PUT: api/Suppliers/update-Supplier?id={id}
-        [HttpPut("update-Supplier")]
+        // PUT: api/Suppliers/5
+        [HttpPut("{id}")]
+        [Authorize(Roles = InventoryRole.Manager)]
         public async Task<ActionResult> UpdateSupplier(int id, SupplierModel model)
         {
-            if (model == null)
+            if (model == null) // Kiểm tra nếu model là null
             {
-                return BadRequest("Dữ liệu nhà cung cấp bị trống.");
+                return BadRequest("Dữ liệu nhà cung cấp bị trống."); // Thay đổi thông báo cho rõ ràng hơn
             }
 
             try
@@ -106,11 +103,11 @@ namespace ApiNetCore8.Controllers
                 var existingSupplier = await _repo.GetSupplierByIdAsync(id);
                 if (existingSupplier == null)
                 {
-                    return NotFound("Không tìm thấy nhà cung cấp.");
+                    return NotFound("Không tìm thấy nhà cung cấp để cập nhật."); // Thêm thông báo khi không tìm thấy nhà cung cấp
                 }
 
                 await _repo.UpdateSupplierAsync(id, model);
-                return NoContent();
+                return NoContent(); // Trả về 204 No Content nếu cập nhật thành công
             }
             catch (Exception ex)
             {
@@ -118,8 +115,9 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-        // DELETE: api/Suppliers/delete-Supplier?id={id}
-        [HttpDelete("delete-Supplier")]
+        // DELETE: api/Suppliers/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = InventoryRole.Admin)]
         public async Task<ActionResult> DeleteSupplier(int id)
         {
             try
@@ -127,11 +125,11 @@ namespace ApiNetCore8.Controllers
                 var existingSupplier = await _repo.GetSupplierByIdAsync(id);
                 if (existingSupplier == null)
                 {
-                    return NotFound("Không tìm thấy nhà cung cấp.");
+                    return NotFound("Không tìm thấy nhà cung cấp để xóa."); // Thêm thông báo khi không tìm thấy nhà cung cấp
                 }
 
                 await _repo.DeleteSupplierAsync(id);
-                return NoContent();
+                return NoContent(); // Trả về 204 No Content nếu xóa thành công
             }
             catch (Exception ex)
             {

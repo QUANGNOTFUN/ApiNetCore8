@@ -15,7 +15,7 @@ namespace ApiNetCore8.Data
         public required string SupplierName { get; set; }
 
         [Required]
-        [MaxLength(100)]
+        [MaxLength(20)]
         public required string ContactInfo { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }

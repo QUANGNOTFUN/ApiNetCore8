@@ -226,8 +226,8 @@ namespace ApiNetCore8.Migrations
 
                     b.Property<string>("ContactInfo")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("SupplierName")
                         .IsRequired()

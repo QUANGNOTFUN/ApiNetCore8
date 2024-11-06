@@ -1,5 +1,6 @@
 ﻿using ApiNetCore8.Data;
 using ApiNetCore8.Models;
+using ApiNetCore8.Repositores;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,16 +17,19 @@ namespace ApiNetCore8.Repositories
             _mapper = mapper;
         }
 
-        // Thêm mới nhà cung cấp
+        // Thêm nhà cung cấp mới
         public async Task<int> AddSupplierAsync(SupplierModel model)
         {
-            if (model == null)
-            {
-                throw new ArgumentNullException(nameof(model), "Thông tin nhà cung cấp không được để trống");
-            }
-
-            model.SupplierId = 0; // Đảm bảo ID là auto-increment
             var newSupplier = _mapper.Map<Supplier>(model);
+
+            // Kiểm tra xem nhà cung cấp đã tồn tại chưa
+            var existingSupplier = await _context.Suppliers
+                                                 .FirstOrDefaultAsync(e => e.SupplierName == newSupplier.SupplierName);
+
+            if (existingSupplier != null)
+            {
+                throw new ArgumentException("SupplierName already exists.");
+            }
 
             await _context.Suppliers.AddAsync(newSupplier);
             await _context.SaveChangesAsync();
@@ -37,91 +41,45 @@ namespace ApiNetCore8.Repositories
         public async Task<List<SupplierModel>> GetAllSuppliersAsync()
         {
             var suppliers = await _context.Suppliers.ToListAsync();
-
-            if (!suppliers.Any())
-            {
-                throw new KeyNotFoundException("Không có nhà cung cấp nào tồn tại.");
-            }
-
-            return _mapper.Map<List<SupplierModel>>(suppliers);
-        }
-
-        // Lấy tất cả nhà cung cấp với phân trang
-        public async Task<List<SupplierModel>> GetAllSuppliersAsync(int page, int pageSize)
-        {
-            if (page <= 0 || pageSize <= 0)
-            {
-                throw new ArgumentOutOfRangeException("Số trang và kích thước trang phải lớn hơn 0.");
-            }
-
-            var suppliers = await _context.Suppliers
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            if (!suppliers.Any())
-            {
-                throw new KeyNotFoundException("Không có nhà cung cấp nào tồn tại trên trang này.");
-            }
-
             return _mapper.Map<List<SupplierModel>>(suppliers);
         }
 
         // Lấy nhà cung cấp theo ID
         public async Task<SupplierModel> GetSupplierByIdAsync(int id)
         {
-            if (id <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(id), "ID phải lớn hơn 0.");
-            }
-
-            var supplier = await _context.Suppliers.SingleOrDefaultAsync(c => c.SupplierId == id);
-
-            if (supplier == null)
-            {
-                throw new KeyNotFoundException("Không tìm thấy nhà cung cấp với ID này.");
-            }
-
+            var supplier = await _context.Suppliers.FindAsync(id);
             return _mapper.Map<SupplierModel>(supplier);
         }
 
         // Cập nhật thông tin nhà cung cấp
         public async Task UpdateSupplierAsync(int id, SupplierModel model)
         {
-            if (model == null)
+            var supplier = await _context.Suppliers.FindAsync(id);
+            if (supplier == null)
             {
-                throw new ArgumentNullException(nameof(model), "Thông tin nhà cung cấp không được để trống.");
+                throw new KeyNotFoundException("Supplier not found");
             }
 
-            var existingSupplier = await _context.Suppliers.FindAsync(id);
+            // Ánh xạ thông tin từ SupplierData sang Supplier
+            _mapper.Map(model, supplier);
 
-            if (existingSupplier == null)
-            {
-                throw new KeyNotFoundException("Không tìm thấy nhà cung cấp với ID này.");
-            }
-
-            _mapper.Map(model, existingSupplier);
-            _context.Suppliers.Update(existingSupplier);
+            _context.Suppliers.Update(supplier);
             await _context.SaveChangesAsync();
         }
 
-        // Xóa nhà cung cấp
+        // Xóa nhà cung cấp theo ID
         public async Task DeleteSupplierAsync(int id)
         {
             var supplier = await _context.Suppliers.FindAsync(id);
-
-            if (supplier == null)
+            if (supplier != null)
             {
-                throw new KeyNotFoundException("Không tìm thấy nhà cung cấp với ID này để xóa.");
+                _context.Suppliers.Remove(supplier);
+                await _context.SaveChangesAsync();
             }
-
-            _context.Suppliers.Remove(supplier);
-            await _context.SaveChangesAsync();
-        }
-
-        public Task FindSupplierAsync(int id)
-        {
-            throw new NotImplementedException();
+            else
+            {
+                throw new KeyNotFoundException("Supplier not found");
+            }
         }
     }
 }
