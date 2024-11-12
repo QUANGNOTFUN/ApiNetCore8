@@ -16,7 +16,8 @@ namespace ApiNetCore8.Data
 
         [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
-
+        [MaxLength(50)]
+        public string Status { get; set; }
         public virtual Supplier Supplier { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }

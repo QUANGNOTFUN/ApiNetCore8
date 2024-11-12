@@ -39,6 +39,26 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
+        [HttpGet("get-supplier-cateid")]
+        public async Task<ActionResult<IEnumerable<SupplierModel>>> GetSuppliersByCategoryId(int categoryId)
+        {
+            try
+            {
+                var suppliers = await _repo.GetSuppliersByCategoryIdAsync(categoryId);
+
+                if (suppliers == null || !suppliers.Any())
+                {
+                    return NotFound($"Không tìm thấy nhà cung cấp nào với CategoryId = {categoryId}.");
+                }
+
+                return Ok(suppliers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+            }
+        }
+
 
         // GET: api/Suppliers/find-Supplier?id={id}
         [HttpGet("find-Supplier")]

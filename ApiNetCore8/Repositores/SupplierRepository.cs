@@ -124,5 +124,25 @@ namespace ApiNetCore8.Repositories
         {
             throw new NotImplementedException();
         }
+        public async Task<List<SupplierModel>> GetSuppliersByCategoryIdAsync(int categoryId)
+        {
+            if (categoryId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(categoryId), "CategoryId phải lớn hơn 0.");
+            }
+
+            // Lấy nhà cung cấp có liên kết với CategoryId
+            var suppliers = await _context.Suppliers
+                .Where(s => s.Categories.Any(c => c.CategoryId == categoryId))
+                .ToListAsync();
+
+            if (!suppliers.Any())
+            {
+                throw new KeyNotFoundException($"Không tìm thấy nhà cung cấp nào với CategoryId = {categoryId}.");
+            }
+
+            return _mapper.Map<List<SupplierModel>>(suppliers);
+        }
+
     }
 }
