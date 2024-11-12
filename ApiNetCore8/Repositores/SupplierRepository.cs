@@ -55,6 +55,7 @@ namespace ApiNetCore8.Repositories
             }
 
             var suppliers = await _context.Suppliers
+                .Include(s => s.Categories)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

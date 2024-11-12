@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ApiNetCore8.Data;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApiNetCore8.Models
@@ -13,5 +14,7 @@ namespace ApiNetCore8.Models
 
         [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
+        public List<OrderDetailModel> OrderDetails { get; set; } 
+        public List<ProductModel> ProductModels { get; set; }
     }
 }

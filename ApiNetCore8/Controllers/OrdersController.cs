@@ -16,10 +16,13 @@ namespace ApiNetCore8.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderRepository _repo;
+        private readonly IProductRepository _productRepository;
 
-        public OrdersController(IOrderRepository repo)
+        public OrdersController(IOrderRepository repo, IProductRepository productRepository)
         {
             _repo = repo;
+            _productRepository = productRepository;
+
         }
 
         // GET: api/Orders
@@ -66,8 +69,8 @@ namespace ApiNetCore8.Controllers
 
 
         // POST: api/Orders
+        // POST: api/Orders
         [HttpPost("add-Order")]
-        //[Authorize]
         public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
         {
             if (model == null)
@@ -84,8 +87,29 @@ namespace ApiNetCore8.Controllers
                     return BadRequest("Tạo đơn hàng không thành công.");
                 }
 
-                var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
+                // Xử lý danh sách ProductModels nếu có
+                if (model.ProductModels != null && model.ProductModels.Any())
+                {
+                    foreach (var product in model.ProductModels)
+                    {
+                        // Tìm sản phẩm hiện tại trong kho dựa trên ID của nó
+                        var existingProduct = await _productRepository.GetProductByIdAsync(product.ProductID);
+                        if (existingProduct != null)
+                        {
+                            // Cập nhật số lượng trong kho với số lượng của đơn hàng
+                            existingProduct.StockQuantity += product.StockQuantity;
 
+                            // Cập nhật lại kho hàng (giả sử có phương thức cập nhật trong _repo)
+                            await _productRepository.UpdateProductAsync(product.ProductID, existingProduct);
+                        }
+                        else
+                        {
+                            return NotFound($"Không tìm thấy sản phẩm với ID {product.ProductID}.");
+                        }
+                    }
+                }
+
+                var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
                 return CreatedAtAction(nameof(GetOrderById), new { id = newOrderId }, newOrder);
             }
             catch (Exception ex)
