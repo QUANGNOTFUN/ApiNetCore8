@@ -23,29 +23,50 @@
         {
             var newOrder = _mapper.Map<Order>(model);
 
-            if (button == "Đặt hàng")
-            {
-                newOrder.OrderName = "Đơn đặt hàng";
-            }
-            else if (button == "Xuất hàng")
-            {
-                newOrder.OrderName = "Đơn Xuất hàng";
-            }
+            
+            newOrder.OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng";
 
+            
             newOrder.Status = model.Status;
 
+           
             await _context.Orders.AddAsync(newOrder);
             await _context.SaveChangesAsync();
 
-   
             if (model.OrderDetails != null && model.OrderDetails.Any())
             {
                 foreach (var detail in model.OrderDetails)
                 {
+                    var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == detail.ProductId);
+
+                    if (product == null)
+                    {
+                        throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
+                    }
+
+                   
+                    if (button == "Đặt hàng")
+                    {
+                        product.StockQuantity += detail.Quantity;
+                        detail.UnitPrice = product.CostPrice; 
+                    }
+                    else if (button == "Xuất hàng")
+                    {
+                        if (product.StockQuantity < detail.Quantity)
+                        {
+                            throw new InvalidOperationException($"Số lượng tồn kho không đủ cho sản phẩm ID {detail.ProductId}");
+                        }
+
+                        product.StockQuantity -= detail.Quantity;
+                        detail.UnitPrice = product.SellPrice; 
+                    }
+
+                    // Thêm chi tiết đơn hàng
                     var newDetail = _mapper.Map<OrderDetail>(detail);
                     newDetail.OrderId = newOrder.OrderId;
                     await _context.OrderDetails.AddAsync(newDetail);
                 }
+
                 await _context.SaveChangesAsync();
             }
 
@@ -139,5 +160,18 @@
                 _context.Orders.Update(Order);
                 await _context.SaveChangesAsync();
             }
+        public async Task UpdateOrderStatusAsync(int orderId, string status)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+
+            if (order == null)
+            {
+                throw new KeyNotFoundException("Order không tồn tại");
+            }
+
+            order.Status = status;
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
         }
+    }
     }

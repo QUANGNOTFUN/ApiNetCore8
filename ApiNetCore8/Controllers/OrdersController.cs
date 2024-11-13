@@ -69,58 +69,36 @@ namespace ApiNetCore8.Controllers
 
 
         // POST: api/Orders
-        // POST: api/Orders
-        [HttpPost("add-Order")]
-        public async Task<ActionResult<OrderModel>> AddOrder(string button, OrderModel model, string action)
+        // API Thêm đơn hàng
+        [HttpPost("add-order")]
+        public async Task<IActionResult> AddOrder(string button, OrderModel model, string action)
         {
             if (model == null)
-            {
                 return BadRequest("Dữ liệu đơn hàng bị trống.");
-            }
 
             try
             {
-                // Xử lý hành động "cancel"
                 if (action == "cancel")
                 {
                     model.Status = "Cancel";
-
-                    // Tạo mới đơn hàng với trạng thái "Cancel"
                     var newOrderId = await _repo.AddOrderAsync(button, model);
-                    if (newOrderId <= 0)
-                    {
-                        return BadRequest("Hủy đơn hàng không thành công.");
-                    }
-
-                    // Cập nhật trạng thái đơn hàng nếu cần
-                    await _repo.UpdateOrderAsync(newOrderId, new OrderModel { Status = "Cancel" });
-
-                    return Ok("Đơn hàng đã được hủy.");
+                    await _repo.UpdateOrderStatusAsync(newOrderId, "Cancel");
+                    return Ok("Đơn hàng đã hủy.");
                 }
 
-                // Xử lý hành động "confirm"
                 if (action == "confirm")
                 {
-                    model.Status = "Thành công";
-
-                    // Tạo mới đơn hàng với trạng thái "Thành công"
+                    model.Status = "Successful";
                     var newOrderId = await _repo.AddOrderAsync(button, model);
-                    if (newOrderId <= 0)
-                    {
-                        return BadRequest("Đặt hàng không thành công.");
-                    }
-
-                    // Cập nhật trạng thái đơn hàng nếu cần
-                    await _repo.UpdateOrderAsync(newOrderId, new OrderModel { Status = "Thành công" });
-
-                    return Ok("Đặt hàng thành công.");
+                    await _repo.UpdateOrderStatusAsync(newOrderId, "Successful");
+                    return Ok("Đơn hàng đã xác nhận.");
                 }
 
                 return BadRequest("Hành động không hợp lệ.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
 
