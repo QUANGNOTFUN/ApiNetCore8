@@ -4,7 +4,6 @@ namespace ApiNetCore8.Repositores
 {
     public interface ICategoryRepository
     {
-        public Task<CategoryModel> CheckNullModelAsync(int id, CategoryModel model);
 
         public Task<PagedResult<CategoryModel>> GetAllCategoryAsync(int page, int pageSize);
 
