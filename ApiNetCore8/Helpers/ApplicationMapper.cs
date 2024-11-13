@@ -13,11 +13,6 @@ namespace ApiNetCore8.Helpers
             CreateMap<Supplier, SupplierModel>().ReverseMap();
             CreateMap<OrderDetail, OrderDetailModel>().ReverseMap();
             CreateMap<Order, OrderModel>().ReverseMap();
-            CreateMap<Supplier, SupplierModel>()
-              .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Categories.Select(c => c.CategoryId).FirstOrDefault()));
-            CreateMap<OrderModel, Order>()
-    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
-
         }
     }
 }
