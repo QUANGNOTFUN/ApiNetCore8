@@ -71,7 +71,7 @@ namespace ApiNetCore8.Controllers
         // POST: api/Orders
         // POST: api/Orders
         [HttpPost("add-Order")]
-        public async Task<ActionResult<OrderModel>> AddOrder(string button,OrderModel model)
+        public async Task<ActionResult<OrderModel>> AddOrder(string button, OrderModel model, string action)
         {
             if (model == null)
             {
@@ -80,43 +80,50 @@ namespace ApiNetCore8.Controllers
 
             try
             {
-                var newOrderId = await _repo.AddOrderAsync(button, model);
-
-                if (newOrderId <= 0)
+                // Xử lý hành động "cancel"
+                if (action == "cancel")
                 {
-                    return BadRequest("Tạo đơn hàng không thành công.");
-                }
+                    model.Status = "Cancel";
 
-                // Xử lý danh sách ProductModels nếu có
-                if (model.ProductModels != null && model.ProductModels.Any())
-                {
-                    foreach (var product in model.ProductModels)
+                    // Tạo mới đơn hàng với trạng thái "Cancel"
+                    var newOrderId = await _repo.AddOrderAsync(button, model);
+                    if (newOrderId <= 0)
                     {
-                        // Tìm sản phẩm hiện tại trong kho dựa trên ID của nó
-                        var existingProduct = await _productRepository.GetProductByIdAsync(product.ProductID);
-                        if (existingProduct != null)
-                        {
-                            // Cập nhật số lượng trong kho với số lượng của đơn hàng
-                            existingProduct.StockQuantity += product.StockQuantity;
-
-                            // Cập nhật lại kho hàng (giả sử có phương thức cập nhật trong _repo)
-                            await _productRepository.UpdateProductAsync(product.ProductID, existingProduct);
-                        }
-                        else
-                        {
-                            return NotFound($"Không tìm thấy sản phẩm với ID {product.ProductID}.");
-                        }
+                        return BadRequest("Hủy đơn hàng không thành công.");
                     }
+
+                    // Cập nhật trạng thái đơn hàng nếu cần
+                    await _repo.UpdateOrderAsync(newOrderId, new OrderModel { Status = "Cancel" });
+
+                    return Ok("Đơn hàng đã được hủy.");
                 }
 
-                var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
-                return CreatedAtAction(nameof(GetOrderById), new { id = newOrderId }, newOrder);
+                // Xử lý hành động "confirm"
+                if (action == "confirm")
+                {
+                    model.Status = "Thành công";
+
+                    // Tạo mới đơn hàng với trạng thái "Thành công"
+                    var newOrderId = await _repo.AddOrderAsync(button, model);
+                    if (newOrderId <= 0)
+                    {
+                        return BadRequest("Đặt hàng không thành công.");
+                    }
+
+                    // Cập nhật trạng thái đơn hàng nếu cần
+                    await _repo.UpdateOrderAsync(newOrderId, new OrderModel { Status = "Thành công" });
+
+                    return Ok("Đặt hàng thành công.");
+                }
+
+                return BadRequest("Hành động không hợp lệ.");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
+
         [HttpPut("update-Order")]
         //[Authorize]
         public async Task<ActionResult> UpdateOrder(int id, OrderModel model)

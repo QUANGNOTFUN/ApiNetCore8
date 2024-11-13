@@ -32,6 +32,7 @@
                 newOrder.OrderName = "Đơn Xuất hàng";
             }
 
+            newOrder.Status = model.Status;
 
             await _context.Orders.AddAsync(newOrder);
             await _context.SaveChangesAsync();
