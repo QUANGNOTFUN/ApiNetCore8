@@ -2,6 +2,7 @@
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositories;
 using AutoMapper;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiNetCore8.Repositores
@@ -126,9 +127,20 @@ namespace ApiNetCore8.Repositores
             throw new NotImplementedException("Không tìm thấy sản phẩm");
         }
 
-        public Task UpdateProductAsync(int id, ProductModel model)
+        public async Task UpdateProductAsync(int id, ProductModel model)
         {
-            throw new NotImplementedException();
+            var existingProduct = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == id);
+            if (existingProduct == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy sản phẩm");
+            }
+
+            // Cập nhật các thuộc tính từ model
+            _mapper.Map(model, existingProduct);
+
+            _context.Products.Update(existingProduct);
+            await _context.SaveChangesAsync();
         }
     }
-}
+    }
+
