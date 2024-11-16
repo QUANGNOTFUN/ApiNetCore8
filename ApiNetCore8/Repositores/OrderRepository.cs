@@ -19,66 +19,66 @@
            
             }
 
-public async Task<int> AddOrderAsync(string button, addOrderModel orderModel, List<addOrderDetailModel> orderDetails)
-{
-    // Tạo đối tượng Order từ addOrderModel
-    var newOrder = new Order
-    {
-        OrderDate = orderModel.OrderDate,
-        SupplierId = orderModel.SupplierId,
-        OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
-        Status = "Pending" // Trạng thái mặc định
-    };
-
-    // Thêm đơn hàng vào cơ sở dữ liệu
-    await _context.Orders.AddAsync(newOrder);
-    await _context.SaveChangesAsync();
-
-    // Xử lý chi tiết đơn hàng
-    if (orderDetails != null && orderDetails.Any())
-    {
-        foreach (var detail in orderDetails)
+        public async Task<int> AddOrderAsync(string button, addOrderModel model)
         {
-            var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == detail.ProductId);
-
-            if (product == null)
+            // Tạo đơn hàng mới
+            var newOrder = new Order
             {
-                throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
-            }
-
-            if (button == "Đặt hàng")
-            {
-                detail.UnitPrice = product.CostPrice;
-                product.StockQuantity += detail.Quantity;
-            }
-            else if (button == "Xuất hàng")
-            {
-                if (product.StockQuantity < detail.Quantity)
-                {
-                    throw new InvalidOperationException($"Số lượng tồn kho không đủ cho sản phẩm ID {detail.ProductId}");
-                }
-
-                detail.UnitPrice = product.SellPrice;
-                product.StockQuantity -= detail.Quantity;
-            }
-
-            var newDetail = new OrderDetail
-            {
-                OrderId = newOrder.OrderId,
-                ProductId = detail.ProductId,
-                OrderDetailName = detail.OrderDetailName,
-                Quantity = detail.Quantity,
-                UnitPrice = detail.UnitPrice
+                OrderDate = model.OrderDate,
+                SupplierId = model.SupplierId,
+                OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
+                Status = "Pending"
             };
 
-            await _context.OrderDetails.AddAsync(newDetail);
+            await _context.Orders.AddAsync(newOrder);
+            await _context.SaveChangesAsync();
+
+            // Thêm chi tiết đơn hàng
+            if (model.addOrderDetails != null && model.addOrderDetails.Any())
+            {
+                foreach (var detail in model.addOrderDetails)
+                {
+                    var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == detail.ProductId);
+
+                    if (product == null)
+                    {
+                        throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
+                    }
+
+                    // Kiểm tra tồn kho và cập nhật
+                    if (button == "Xuất hàng" && product.StockQuantity < detail.Quantity)
+                    {
+                        throw new InvalidOperationException($"Số lượng tồn kho không đủ cho sản phẩm ID {detail.ProductId}");
+                    }
+
+                    if (button == "Đặt hàng")
+                    {
+                        product.StockQuantity += detail.Quantity;
+                        detail.UnitPrice = product.CostPrice;
+                    }
+                    else if (button == "Xuất hàng")
+                    {
+                        product.StockQuantity -= detail.Quantity;
+                        detail.UnitPrice = product.SellPrice;
+                    }
+
+                    var newDetail = new OrderDetail
+                    {
+                        OrderDetailName = detail.OrderDetailName,
+                        ProductId = detail.ProductId,
+                        Quantity = detail.Quantity,
+                        UnitPrice = detail.UnitPrice,
+                        OrderId = newOrder.OrderId
+                    };
+
+                    await _context.OrderDetails.AddAsync(newDetail);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return newOrder.OrderId;
         }
-
-        await _context.SaveChangesAsync();
-    }
-
-    return newOrder.OrderId;
-}
 
 
         public async Task DeleteOrderAsync(int id)

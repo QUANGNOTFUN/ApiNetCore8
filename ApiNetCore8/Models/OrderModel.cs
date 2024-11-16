@@ -22,11 +22,8 @@ namespace ApiNetCore8.Models
     }
     public class addOrderModel
     {
-        [Required]
         public DateTime OrderDate { get; set; }
-        [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
         public List<addOrderDetailModel> addOrderDetails { get; set; }
-
     }
 }

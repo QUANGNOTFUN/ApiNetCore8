@@ -70,16 +70,17 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Orders
         // API Thêm đơn hàng
-    
+
         [HttpPost("add-order")]
-        public async Task<IActionResult> AddOrder(string button, addOrderModel orderModel, List<addOrderDetailModel> orderDetails)
+        public async Task<IActionResult> AddOrder(string button, [FromBody] addOrderModel model)
         {
-            if (orderModel == null || orderDetails == null || !orderDetails.Any())
-                return BadRequest("Dữ liệu đơn hàng hoặc chi tiết đơn hàng bị trống.");
+            if (model == null)
+                return BadRequest("Dữ liệu đơn hàng không hợp lệ.");
 
             try
             {
-                var newOrderId = await _repo.AddOrderAsync(button, orderModel, orderDetails);
+                var newOrderId = await _repo.AddOrderAsync(button, model);
+
                 return Ok(new { Message = "Đơn hàng đã được thêm.", OrderId = newOrderId });
             }
             catch (Exception ex)
@@ -87,28 +88,36 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
+
         [HttpPut("update-order-status/{orderId}")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string action)
         {
             try
             {
-                string status = action switch
+                string status;
+
+                if (action == "confirm")
                 {
-                    "confirm" => "Successful",
-                    "cancel" => "Cancel",
-                    _ => throw new InvalidOperationException("Hành động không hợp lệ.")
-                };
+                    status = "Successful";
+                }
+                else if (action == "cancel")
+                {
+                    status = "Cancel";
+                }
+                else
+                {
+                    return BadRequest("Hành động không hợp lệ.");
+                }
 
                 await _repo.UpdateOrderStatusAndQuantityAsync(orderId, status, action);
-                return Ok($"Đơn hàng đã được cập nhật trạng thái: {status}");
+
+                return Ok($"Trạng thái và số lượng của đơn hàng đã được cập nhật: {status}");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
-
-
         [HttpPut("update-Order")]
         //[Authorize]
         public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
