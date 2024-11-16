@@ -6,6 +6,8 @@ namespace ApiNetCore8.Repositories
     {
         public Task<int> AddSupplierAsync(SupplierModel model);
         public Task<List<SupplierModel>> GetAllSuppliersAsync(int page,int pageSize);
+        Task<List<SupplierModel>> GetSuppliersByCategoryIdAsync(int categoryId);
+
         public Task<SupplierModel> GetSupplierByIdAsync(int id);
         public Task UpdateSupplierAsync(int id, SupplierModel model);
         public Task DeleteSupplierAsync(int id);

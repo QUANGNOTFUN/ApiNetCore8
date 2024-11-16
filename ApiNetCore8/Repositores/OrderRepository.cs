@@ -19,26 +19,40 @@
            
             }
 
-            public async Task<int> AddOrderAsync(OrderModel model)
-            {
-                var newOrder = _mapper.Map<Order>(model);
+        public async Task<int> AddOrderAsync(string button, OrderModel model)
+        {
+            var newOrder = _mapper.Map<Order>(model);
 
-                await _context.Orders.AddAsync(newOrder);
-                await _context.SaveChangesAsync();
+            if (button == "Đặt hàng")
+            {
+                newOrder.OrderName = "Đơn đặt hàng";
+            }
+            else if (button == "Xuất hàng")
+            {
+                newOrder.OrderName = "Đơn Xuất hàng";
+            }
+
+
+            await _context.Orders.AddAsync(newOrder);
+            await _context.SaveChangesAsync();
+
+   
             if (model.OrderDetails != null && model.OrderDetails.Any())
             {
                 foreach (var detail in model.OrderDetails)
                 {
                     var newDetail = _mapper.Map<OrderDetail>(detail);
-                    newDetail.OrderId = newOrder.OrderId; 
+                    newDetail.OrderId = newOrder.OrderId;
                     await _context.OrderDetails.AddAsync(newDetail);
                 }
                 await _context.SaveChangesAsync();
             }
-            return newOrder.OrderId;
-            }
 
-            public async Task DeleteOrderAsync(int id)
+            return newOrder.OrderId;
+        }
+
+
+        public async Task DeleteOrderAsync(int id)
             {
                 var order = await _context.Orders.FindAsync(id);
                 if (order != null)
