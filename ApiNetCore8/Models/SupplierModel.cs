@@ -13,7 +13,5 @@ namespace ApiNetCore8.Models
         [Required]
         [MaxLength(100)]
         public required string ContactInfo { get; set; }
-
-        public int CategoryId { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using ApiNetCore8.Models;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Printing;
 
 namespace ApiNetCore8.Repositories
 {
@@ -33,39 +34,26 @@ namespace ApiNetCore8.Repositories
             return newSupplier.SupplierId;
         }
 
-        // Lấy tất cả nhà cung cấp
-        public async Task<List<SupplierModel>> GetAllSuppliersAsync()
-        {
-            var suppliers = await _context.Suppliers.ToListAsync();
-
-            if (!suppliers.Any())
-            {
-                throw new KeyNotFoundException("Không có nhà cung cấp nào tồn tại.");
-            }
-
-            return _mapper.Map<List<SupplierModel>>(suppliers);
-        }
-
         // Lấy tất cả nhà cung cấp với phân trang
-        public async Task<List<SupplierModel>> GetAllSuppliersAsync(int page, int pageSize)
+        public async Task<PagedResult<SupplierModel>> GetAllSuppliersAsync(int page, int pageSize)
         {
-            if (page <= 0 || pageSize <= 0)
-            {
-                throw new ArgumentOutOfRangeException("Số trang và kích thước trang phải lớn hơn 0.");
-            }
-
+            var totalSuppliers = await _context.Suppliers.CountAsync(); // Đếm tổng số nhà cung cấp
             var suppliers = await _context.Suppliers
-                .Include(s => s.Categories)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Include(s => s.Categories) // Bao gồm các danh mục liên quan đến mỗi nhà cung cấp
+                .Skip((page - 1) * pageSize) // Bỏ qua các nhà cung cấp ở các trang trước
+                .Take(pageSize) // Lấy số nhà cung cấp trong trang hiện tại
                 .ToListAsync();
 
-            if (!suppliers.Any())
-            {
-                throw new KeyNotFoundException("Không có nhà cung cấp nào tồn tại trên trang này.");
-            }
+            // Ánh xạ từ Supplier sang SupplierModel
+            var supplierModels = _mapper.Map<List<SupplierModel>>(suppliers);
 
-            return _mapper.Map<List<SupplierModel>>(suppliers);
+            return new PagedResult<SupplierModel>
+            {
+                Items = supplierModels,
+                TotalCount = totalSuppliers,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
         }
 
         // Lấy nhà cung cấp theo ID
@@ -102,6 +90,7 @@ namespace ApiNetCore8.Repositories
             }
 
             _mapper.Map(model, existingSupplier);
+
             _context.Suppliers.Update(existingSupplier);
             await _context.SaveChangesAsync();
         }
@@ -120,29 +109,30 @@ namespace ApiNetCore8.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public Task FindSupplierAsync(int id)
+        public async Task<PagedResult<SupplierModel>> FindSuppliersAsync(string name, int page, int pageSize)
         {
-            throw new NotImplementedException();
-        }
-        public async Task<List<SupplierModel>> GetSuppliersByCategoryIdAsync(int categoryId)
-        {
-            if (categoryId <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(categoryId), "CategoryId phải lớn hơn 0.");
-            }
+            // Đếm tổng số nhà cung cấp có tên chứa ký tự 'name'
+            var totalSuppliers = await _context.Suppliers
+                .Where(s => s.SupplierName.Contains(name)) // Điều kiện tìm kiếm theo tên nhà cung cấp
+                .CountAsync();
 
-            // Lấy nhà cung cấp có liên kết với CategoryId
+            // Lấy nhà cung cấp theo tên với phân trang
             var suppliers = await _context.Suppliers
-                .Where(s => s.Categories.Any(c => c.CategoryId == categoryId))
+                .Where(s => s.SupplierName.Contains(name)) // Điều kiện tìm kiếm theo tên nhà cung cấp
+                .Skip((page - 1) * pageSize) // Bỏ qua các nhà cung cấp ở các trang trước
+                .Take(pageSize) // Lấy số nhà cung cấp trong trang hiện tại
                 .ToListAsync();
 
-            if (!suppliers.Any())
+            // Ánh xạ từ Supplier sang SupplierModel
+            var supplierModels = _mapper.Map<List<SupplierModel>>(suppliers);
+
+            return new PagedResult<SupplierModel>
             {
-                throw new KeyNotFoundException($"Không tìm thấy nhà cung cấp nào với CategoryId = {categoryId}.");
-            }
-
-            return _mapper.Map<List<SupplierModel>>(suppliers);
+                Items = supplierModels,
+                TotalCount = totalSuppliers,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
         }
-
     }
 }

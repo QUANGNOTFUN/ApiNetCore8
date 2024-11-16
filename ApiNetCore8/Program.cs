@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -23,7 +22,7 @@ builder.Services.AddSwaggerGen(option =>
         Version = "v1"
     });
 
-    // Thêm ph?n ??nh ngh?a cho xác th?c Bearer JWT
+    // Th?m ph?n ??nh ngh?a cho x?c th?c Bearer JWT
     option.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -34,7 +33,7 @@ builder.Services.AddSwaggerGen(option =>
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\""
     });
 
-    // Thêm yêu c?u xác th?c toàn b? các endpoint
+    // Th?m y?u c?u x?c th?c to?n b? c?c endpoint
     option.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
@@ -53,11 +52,11 @@ builder.Services.AddSwaggerGen(option =>
 
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())) ;
+    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<InventoryContext>().AddDefaultTokenProviders();
-    
+
 builder.Services.AddDbContext<InventoryContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Inventory"));
 });
@@ -93,14 +92,11 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseCors();
 
 app.UseAuthorization();
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiNetCore8.Migrations
 {
     [DbContext(typeof(InventoryContext))]
-    [Migration("20241027121255_DbInit")]
-    partial class DbInit
+    [Migration("20241116064929_dbInit")]
+    partial class dbInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,12 +115,7 @@ namespace ApiNetCore8.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("SupplierId")
-                        .HasColumnType("int");
-
                     b.HasKey("CategoryId");
-
-                    b.HasIndex("SupplierId");
 
                     b.ToTable("Category");
                 });
@@ -139,6 +134,11 @@ namespace ApiNetCore8.Migrations
                     b.Property<string>("OrderName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("int");
@@ -240,6 +240,21 @@ namespace ApiNetCore8.Migrations
                     b.HasKey("SupplierId");
 
                     b.ToTable("Supplier");
+                });
+
+            modelBuilder.Entity("CategorySupplier", b =>
+                {
+                    b.Property<int>("CategoriesCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SuppliersSupplierId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CategoriesCategoryId", "SuppliersSupplierId");
+
+                    b.HasIndex("SuppliersSupplierId");
+
+                    b.ToTable("CategorySupplier");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -375,13 +390,6 @@ namespace ApiNetCore8.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ApiNetCore8.Data.Category", b =>
-                {
-                    b.HasOne("ApiNetCore8.Data.Supplier", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("SupplierId");
-                });
-
             modelBuilder.Entity("ApiNetCore8.Data.Order", b =>
                 {
                     b.HasOne("ApiNetCore8.Data.Supplier", "Supplier")
@@ -421,6 +429,21 @@ namespace ApiNetCore8.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("CategorySupplier", b =>
+                {
+                    b.HasOne("ApiNetCore8.Data.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApiNetCore8.Data.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SuppliersSupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -491,8 +514,6 @@ namespace ApiNetCore8.Migrations
 
             modelBuilder.Entity("ApiNetCore8.Data.Supplier", b =>
                 {
-                    b.Navigation("Categories");
-
                     b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
