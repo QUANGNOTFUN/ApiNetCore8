@@ -19,56 +19,66 @@
            
             }
 
-        public async Task<int> AddOrderAsync(string button, OrderModel model)
+public async Task<int> AddOrderAsync(string button, addOrderModel orderModel, List<addOrderDetailModel> orderDetails)
+{
+    // Tạo đối tượng Order từ addOrderModel
+    var newOrder = new Order
+    {
+        OrderDate = orderModel.OrderDate,
+        SupplierId = orderModel.SupplierId,
+        OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
+        Status = "Pending" // Trạng thái mặc định
+    };
+
+    // Thêm đơn hàng vào cơ sở dữ liệu
+    await _context.Orders.AddAsync(newOrder);
+    await _context.SaveChangesAsync();
+
+    // Xử lý chi tiết đơn hàng
+    if (orderDetails != null && orderDetails.Any())
+    {
+        foreach (var detail in orderDetails)
         {
-            var newOrder = _mapper.Map<Order>(model);
+            var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == detail.ProductId);
 
-            
-            newOrder.OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng";
-
-
-            newOrder.Status = "Pending";
-    
-
-            await _context.Orders.AddAsync(newOrder);
-            await _context.SaveChangesAsync();
-
-            if (model.OrderDetails != null && model.OrderDetails.Any())
+            if (product == null)
             {
-                foreach (var detail in model.OrderDetails)
-                {
-                    var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == detail.ProductId);
-
-                    if (product == null)
-                    {
-                        throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
-                    }
-
-                   
-                    if (button == "Đặt hàng")
-                    {
-                        detail.UnitPrice = product.CostPrice; 
-                    }
-                    else if (button == "Xuất hàng")
-                    {
-                        if (product.StockQuantity < detail.Quantity)
-                        {
-                            throw new InvalidOperationException($"Số lượng tồn kho không đủ cho sản phẩm ID {detail.ProductId}");
-                        }
-
-                        detail.UnitPrice = product.SellPrice; 
-                    }
-
-                    var newDetail = _mapper.Map<OrderDetail>(detail);
-                    newDetail.OrderId = newOrder.OrderId;
-                    await _context.OrderDetails.AddAsync(newDetail);
-                }
-
-                await _context.SaveChangesAsync();
+                throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
             }
 
-            return newOrder.OrderId;
+            if (button == "Đặt hàng")
+            {
+                detail.UnitPrice = product.CostPrice;
+                product.StockQuantity += detail.Quantity;
+            }
+            else if (button == "Xuất hàng")
+            {
+                if (product.StockQuantity < detail.Quantity)
+                {
+                    throw new InvalidOperationException($"Số lượng tồn kho không đủ cho sản phẩm ID {detail.ProductId}");
+                }
+
+                detail.UnitPrice = product.SellPrice;
+                product.StockQuantity -= detail.Quantity;
+            }
+
+            var newDetail = new OrderDetail
+            {
+                OrderId = newOrder.OrderId,
+                ProductId = detail.ProductId,
+                OrderDetailName = detail.OrderDetailName,
+                Quantity = detail.Quantity,
+                UnitPrice = detail.UnitPrice
+            };
+
+            await _context.OrderDetails.AddAsync(newDetail);
         }
+
+        await _context.SaveChangesAsync();
+    }
+
+    return newOrder.OrderId;
+}
 
 
         public async Task DeleteOrderAsync(int id)
@@ -159,7 +169,6 @@
             }
         public async Task UpdateOrderStatusAndQuantityAsync(int orderId, string status, string action)
         {
-            // Tìm đơn hàng theo ID
             var order = await _context.Orders
                 .Include(o => o.OrderDetails)
                 .ThenInclude(od => od.Product)
@@ -173,7 +182,7 @@
             // Cập nhật trạng thái
             order.Status = status;
 
-            // Nếu hành động là xác nhận, xử lý số lượng sản phẩm
+            // Nếu xác nhận đơn hàng, xử lý tồn kho
             if (action == "confirm" && status == "Successful")
             {
                 foreach (var detail in order.OrderDetails)
@@ -182,7 +191,7 @@
 
                     if (product == null)
                     {
-                        throw new KeyNotFoundException($"Sản phẩm với ID {detail.ProductId} không tồn tại.");
+                        throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
                     }
 
                     if (order.OrderName == "Đơn đặt hàng")
