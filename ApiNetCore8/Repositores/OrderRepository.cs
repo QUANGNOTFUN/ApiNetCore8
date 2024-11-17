@@ -26,10 +26,10 @@
             
             newOrder.OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng";
 
-            
-            newOrder.Status = model.Status;
 
-           
+            newOrder.Status = "Pending";
+    
+
             await _context.Orders.AddAsync(newOrder);
             await _context.SaveChangesAsync();
 
@@ -47,7 +47,6 @@
                    
                     if (button == "Đặt hàng")
                     {
-                        product.StockQuantity += detail.Quantity;
                         detail.UnitPrice = product.CostPrice; 
                     }
                     else if (button == "Xuất hàng")
@@ -57,11 +56,9 @@
                             throw new InvalidOperationException($"Số lượng tồn kho không đủ cho sản phẩm ID {detail.ProductId}");
                         }
 
-                        product.StockQuantity -= detail.Quantity;
                         detail.UnitPrice = product.SellPrice; 
                     }
 
-                    // Thêm chi tiết đơn hàng
                     var newDetail = _mapper.Map<OrderDetail>(detail);
                     newDetail.OrderId = newOrder.OrderId;
                     await _context.OrderDetails.AddAsync(newDetail);
@@ -160,18 +157,52 @@
                 _context.Orders.Update(Order);
                 await _context.SaveChangesAsync();
             }
-        public async Task UpdateOrderStatusAsync(int orderId, string status)
+        public async Task UpdateOrderStatusAndQuantityAsync(int orderId, string status, string action)
         {
-            var order = await _context.Orders.FindAsync(orderId);
+            // Tìm đơn hàng theo ID
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
             {
-                throw new KeyNotFoundException("Order không tồn tại");
+                throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
             }
 
+            // Cập nhật trạng thái
             order.Status = status;
+
+            // Nếu hành động là xác nhận, xử lý số lượng sản phẩm
+            if (action == "confirm" && status == "Successful")
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    var product = detail.Product;
+
+                    if (product == null)
+                    {
+                        throw new KeyNotFoundException($"Sản phẩm với ID {detail.ProductId} không tồn tại.");
+                    }
+
+                    if (order.OrderName == "Đơn đặt hàng")
+                    {
+                        product.StockQuantity += detail.Quantity;
+                    }
+                    else if (order.OrderName == "Đơn xuất hàng")
+                    {
+                        if (product.StockQuantity < detail.Quantity)
+                        {
+                            throw new InvalidOperationException($"Không đủ hàng trong kho cho sản phẩm ID {detail.ProductId}.");
+                        }
+                        product.StockQuantity -= detail.Quantity;
+                    }
+                }
+            }
+
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
+
     }
-    }
+}
