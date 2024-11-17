@@ -71,7 +71,7 @@ namespace ApiNetCore8.Controllers
         // POST: api/Orders
         // POST: api/Orders
         [HttpPost("add-Order")]
-        public async Task<ActionResult<OrderModel>> AddOrder(OrderModel model)
+        public async Task<ActionResult<OrderModel>> AddOrder(string button,OrderModel model)
         {
             if (model == null)
             {
@@ -80,7 +80,7 @@ namespace ApiNetCore8.Controllers
 
             try
             {
-                var newOrderId = await _repo.AddOrderAsync(model);
+                var newOrderId = await _repo.AddOrderAsync(button, model);
 
                 if (newOrderId <= 0)
                 {
