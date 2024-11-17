@@ -18,7 +18,7 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/Products/all-product?page={page}&pageSize={pageSize}
+        // GET: api/Products/all-product
         [HttpGet("all-product")]
         public async Task<ActionResult<PagedResult<ProductModel>>> GetAllProducts(int page = 1, int pageSize = 20)
         {
@@ -104,7 +104,7 @@ namespace ApiNetCore8.Controllers
         // POST: api/Products/add-product?model={formbody}
         [HttpPost("add-product")]
         //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<ProductModel>> AddProduct(ProductModel model)
+        public async Task<ActionResult<InputProductModel>> AddProduct(InputProductModel model)
         {
             // Xác thực model
             if (!ModelState.IsValid)
@@ -129,7 +129,7 @@ namespace ApiNetCore8.Controllers
         // PUT: api/Products/update-product?id={id}&model={formbody}
         [HttpPut("update-product")]
         //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult> UpdateProduct(int id, UpdateProductModel model)
+        public async Task<ActionResult> UpdateProduct(int id, InputProductModel model)
         {
             if (model == null)
             {

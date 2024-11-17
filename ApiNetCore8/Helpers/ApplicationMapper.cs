@@ -13,7 +13,7 @@ namespace ApiNetCore8.Helpers
 
             // product
             CreateMap<Product, ProductModel>().ReverseMap();
-            CreateMap<Product, UpdateProductModel>().ReverseMap();
+            CreateMap<Product, InputProductModel>().ReverseMap();
 
             // supplier
             CreateMap<Supplier, SupplierModel>().ReverseMap();

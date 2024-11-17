@@ -12,11 +12,9 @@ namespace ApiNetCore8.Repositories
 
         public Task<ProductModel> GetProductByIdAsync(int id);
 
-        public Task<ProductModel> CheckNullProductModel(int id, UpdateProductModel model);
+        public Task<int> AddProductAsync(InputProductModel model);
 
-        public Task<int> AddProductAsync(ProductModel model);
-
-        public Task UpdateProductAsync(int id, UpdateProductModel model);
+        public Task UpdateProductAsync(int id, InputProductModel model);
 
         public Task DeleteProductAsync(int id);
     }
