@@ -13,7 +13,11 @@ public class ProductModel
 
     [Required(ErrorMessage = "Hãy nhập giá sản phẩm.")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Giá sản phẩm phải lớn hơn 0.")]
-    public decimal Price { get; set; }
+    public decimal CostPrice { get; set; }
+
+    [Required(ErrorMessage = "Hãy nhập giá sản phẩm.")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Giá sản phẩm phải lớn hơn 0.")]
+    public decimal SellPrice { get; set; }
 
     [Required(ErrorMessage = "Hãy nhập số lượng trong kho.")]
     [Range(0, int.MaxValue, ErrorMessage = "Số lượng trong kho phải lớn hơn hoặc bằng 0.")]

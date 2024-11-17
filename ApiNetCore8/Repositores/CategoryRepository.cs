@@ -174,43 +174,77 @@ namespace ApiNetCore8.Repositories
             return _mapper.Map<CategoryModel>(category);
         }
 
-        public async Task UpdateCategoryAsync(int id, CategoryModel model)
+        // Kiểm tra categoryudatemodel thuộc tính nào null
+        public async Task<CategoryUpdateModel> CheckNullCategoryAsync(int id, CategoryUpdateModel model)
         {
-            // Tìm danh mục theo ID
-            var category = await _context.Categories.Include(c => c.Suppliers).FirstOrDefaultAsync(c => c.CategoryId == id);
-            if (category == null)
+            var category = await _context.Categories.SingleOrDefaultAsync(c => c.CategoryId == id);
+
+            if (string.IsNullOrWhiteSpace(model.CategoryName) || model.CategoryName == "string")
             {
-                throw new KeyNotFoundException("Không có Id danh mục");
+                model.CategoryName = category.CategoryName;
             }
 
-            // Cập nhật các trường thông tin danh mục
-            category.CategoryName = model.CategoryName;
-            category.Description = model.Description;
-
-            // Kiểm tra và cập nhật các nhà cung cấp nếu có thay đổi
-            if (model.Supplier != null && model.Supplier.Any())
+            if (string.IsNullOrWhiteSpace(model.Description) || model.CategoryName == "string")
             {
-                // Lấy danh sách các SupplierId trong model
-                var supplierIds = model.Supplier.Select(s => s.SupplierId).ToList();
+                model.Description = category.Description;
+            }
 
-                // Tìm các nhà cung cấp từ cơ sở dữ liệu
-                var suppliers = await _context.Suppliers
-                                              .Where(s => supplierIds.Contains(s.SupplierId))
-                                              .ToListAsync();
-
-                // Xóa các nhà cung cấp không còn liên kết với danh mục này
-                category.Suppliers.Clear();
-
-                // Thêm lại các nhà cung cấp mới vào danh mục
-                foreach (var supplier in suppliers)
+            foreach (var suppId in model.Supplier)
+            {
+                if (suppId.SupplierIdNew != 0)
                 {
-                    category.Suppliers.Add(supplier);
+                    var existSupp = await _context.Suppliers.FirstOrDefaultAsync(s => s.SupplierId == suppId.SupplierIdNew);
+                    if (existSupp == null)
+                    {
+                        throw new KeyNotFoundException("Không có id nhà cung cấp để cập nhật");
+                    }
                 }
             }
 
-            // Cập nhật thông tin danh mục trong cơ sở dữ liệu
+
+            return model;
+        }
+
+        // Cập nhật category
+        public async Task UpdateCategoryAsync(int id, CategoryUpdateModel model)
+        {
+            // Tìm danh mục theo ID, bao gồm cả danh sách nhà cung cấp
+            var category = await _context.Categories
+                                         .Include(c => c.Suppliers) // Gắn danh sách nhà cung cấp
+                                         .FirstOrDefaultAsync(c => c.CategoryId == id);
+
+            // Kiểm tra và thay thế các giá trị null trong model
+            var checkModel = await CheckNullCategoryAsync(id, model);
+            category.CategoryName = checkModel.CategoryName;
+            category.Description = checkModel.Description;
+
+            // Cập nhật danh sách nhà cung cấp
+            foreach (var supplierUpdate in checkModel.Supplier)
+            {
+                if (supplierUpdate.SupplierIdOld != 0 && supplierUpdate.SupplierIdNew != 0)
+                {
+                    // Trường hợp thay đổi từ SupplierIdOld sang SupplierIdNew
+                    var oldSupplier = category.Suppliers.FirstOrDefault(s => s.SupplierId == supplierUpdate.SupplierIdOld);
+                    if (oldSupplier != null)
+                    {
+                        oldSupplier.SupplierId = supplierUpdate.SupplierIdNew;
+                    }
+                }
+                else if (supplierUpdate.SupplierIdNew != 0 && supplierUpdate.SupplierIdOld == 0)
+                {
+                    // Trường hợp thêm nhà cung cấp mới
+                    var newSupplier = await _context.Suppliers.FirstOrDefaultAsync(s => s.SupplierId == supplierUpdate.SupplierIdNew);
+                    if (newSupplier != null && !category.Suppliers.Contains(newSupplier))
+                    {
+                        category.Suppliers.Add(newSupplier);
+                    }
+                }
+            }
+
+            // Lưu các thay đổi vào cơ sở dữ liệu
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
         }
+
     }
 }
