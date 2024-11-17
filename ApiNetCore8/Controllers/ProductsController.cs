@@ -106,11 +106,6 @@ namespace ApiNetCore8.Controllers
         //[Authorize(Roles = InventoryRole.Staff)]
         public async Task<ActionResult<ProductModel>> AddProduct(ProductModel model)
         {
-            if (model == null) // Kiểm tra nếu model là null
-            {
-                return BadRequest("Thông tin sản phẩm bị trống");
-            }
-
             // Xác thực model
             if (!ModelState.IsValid)
             {
@@ -133,8 +128,8 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Products/update-product?id={id}&model={formbody}
         [HttpPut("update-product")]
-        [Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult> UpdateProduct(int id, ProductModel model)
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult> UpdateProduct(int id, UpdateProductModel model)
         {
             if (model == null)
             {
@@ -150,8 +145,8 @@ namespace ApiNetCore8.Controllers
                 }
 
                 // Cập nhật thông tin sản phẩm
-                await _repo.UpdateProductAsync(id, model); // Sửa lại để sử dụng model mới
-                return NoContent();
+                await _repo.UpdateProductAsync(id, model); 
+                return Ok("Đã cập nhật thành công sản phẩm");
             }
             catch (Exception ex)
             {

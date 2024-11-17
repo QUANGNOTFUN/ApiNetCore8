@@ -42,6 +42,11 @@ namespace ApiNetCore8.Repositores
             return newProduct.ProductID;
         }
 
+        public Task<ProductModel> CheckNullProductModel(int id, UpdateProductModel model)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task DeleteProductAsync(int id)
         {
             throw new NotImplementedException();
@@ -127,9 +132,12 @@ namespace ApiNetCore8.Repositores
             throw new NotImplementedException("Không tìm thấy sản phẩm");
         }
 
-        public async Task UpdateProductAsync(int id, ProductModel model)
+
+
+        public async Task UpdateProductAsync(int id, UpdateProductModel model)
         {
             var existingProduct = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == id);
+
             if (existingProduct == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy sản phẩm");
