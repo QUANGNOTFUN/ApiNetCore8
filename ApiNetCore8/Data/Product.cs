@@ -18,7 +18,11 @@ namespace ApiNetCore8.Data
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Price { get; set; }
+        public decimal CostPrice { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SellPrice { get; set; }
 
         [Required]
         public int StockQuantity { get; set; } // Số lượng trong kho

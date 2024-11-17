@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiNetCore8.Migrations
 {
     [DbContext(typeof(InventoryContext))]
-    [Migration("20241116064929_dbInit")]
-    partial class dbInit
+    [Migration("20241116103734_DbInit")]
+    partial class DbInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -194,12 +194,12 @@ namespace ApiNetCore8.Migrations
                     b.Property<int>("CategoryID")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("CostPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -208,6 +208,9 @@ namespace ApiNetCore8.Migrations
 
                     b.Property<int>("ReorderLevel")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("SellPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");

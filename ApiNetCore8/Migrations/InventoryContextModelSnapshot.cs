@@ -191,12 +191,12 @@ namespace ApiNetCore8.Migrations
                     b.Property<int>("CategoryID")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("CostPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -205,6 +205,9 @@ namespace ApiNetCore8.Migrations
 
                     b.Property<int>("ReorderLevel")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("SellPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
