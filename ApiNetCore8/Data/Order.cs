@@ -18,6 +18,7 @@ namespace ApiNetCore8.Data
         public int SupplierId { get; set; }
         [MaxLength(50)]
         public string Status { get; set; }
+        public int totalPrice { get; set; }
         public virtual Supplier Supplier { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }

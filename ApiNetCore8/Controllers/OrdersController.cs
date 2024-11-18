@@ -80,7 +80,6 @@ namespace ApiNetCore8.Controllers
             {
 
                 var newOrderId = await _repo.AddOrderAsync(button, model);
-
                 return Ok(new { Message = "Đơn hàng đã được thêm.", OrderId = newOrderId });
             }
             catch (Exception ex)
@@ -88,6 +87,11 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
         [HttpPut("update-order-status/{orderId}")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string action)
         {
@@ -117,6 +121,7 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
+<<<<<<< Updated upstream
     
     [HttpPut("update-Order")]
         //[Authorize]
@@ -144,5 +149,11 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+=======
+
+
+
+>>>>>>> Stashed changes
     }
 }
+
