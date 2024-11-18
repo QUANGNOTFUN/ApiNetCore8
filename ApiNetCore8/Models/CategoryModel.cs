@@ -24,18 +24,10 @@ namespace ApiNetCore8.Models
      // Dùng cho update sản phẩm
      public class CategoryUpdateModel
     {
-        public string CategoryId { get; set; }
-
         public string CategoryName { get; set; }
 
         public string Description { get; set; }
 
-        public List<SupplierUpdate> Supplier { get; set; }
-    }
-
-    public class SupplierUpdate
-    {
-        public int SupplierIdNew { get; set; }
-        public int SupplierIdOld { get; set; }
+        public List<int> SupplierIdNew { get; set; }
     }
 }
