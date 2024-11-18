@@ -15,14 +15,14 @@ namespace ApiNetCore8.Models
 
         [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
-     
+        public decimal TotalPrice { get; set; }
         public string Status { get; set; } 
         public List<OrderDetailModel> OrderDetails { get; set; } 
 
     }
     public class addOrderModel
     {
-        public DateTime OrderDate { get; set; }
+      
         public int SupplierId { get; set; }
         public List<addOrderDetailModel> addOrderDetails { get; set; }
     }

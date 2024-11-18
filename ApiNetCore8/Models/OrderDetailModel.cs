@@ -22,13 +22,8 @@ namespace ApiNetCore8.Models
     }
     public class addOrderDetailModel
     {
-        public string OrderDetailName { get; set; }
-
         [ForeignKey("Product")]
         public int ProductId { get; set; }
-
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal UnitPrice { get; set; }
 
         [Required]
         public int Quantity { get; set; }
