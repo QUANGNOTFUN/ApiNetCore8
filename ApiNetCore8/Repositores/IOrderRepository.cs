@@ -5,7 +5,7 @@ namespace ApiNetCore8.Repositores
     public interface IOrderRepository
     {
         public Task<PagedResult<OrderModel>> GetAllOrderAsync(int page, int pageSize);
-        public Task<int> AddOrderAsync(string button,OrderModel model);
+        public Task<int> AddOrderAsync(string button, addOrderModel model);
         public Task UpdateOrderStatusAndQuantityAsync(int orderId, string status, string action);
         public Task UpdateOrderAsync(int id, OrderModel model);
         public Task DeleteOrderAsync(int id);

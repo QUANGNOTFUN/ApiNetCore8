@@ -103,7 +103,7 @@ namespace ApiNetCore8.Controllers
         // PUT: api/Categories/update-category?id={id}&model={formbody}
         [HttpPut("update-category")]
         //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult> UpdateCategory(int id, CategoryModel model)
+        public async Task<ActionResult> UpdateCategory(int id, CategoryUpdateModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
             {
@@ -120,7 +120,7 @@ namespace ApiNetCore8.Controllers
                 }
 
                 await _repo.UpdateCategoryAsync(id, model);
-                return NoContent(); // Trả về 204 No Content nếu cập nhật thành công
+                return Ok("Cập nhật danh mục thành công.");
             }
             catch (Exception ex)
             {

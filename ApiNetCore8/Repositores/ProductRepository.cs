@@ -17,14 +17,8 @@ namespace ApiNetCore8.Repositores
             _context = context;
             _mapper = mapper;
         }
-        public async Task<int> AddProductAsync(ProductModel model)
+        public async Task<int> AddProductAsync(InputProductModel model)
         {
-            model.ProductID = 0;
-            if (model.Description == null || model.Description == "string")
-            {
-                model.Description = null;
-            }
-
             var newProduct = _mapper.Map<Product>(model);
             var category = await _context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.CategoryId == model.CategoryID);
 
@@ -127,20 +121,32 @@ namespace ApiNetCore8.Repositores
             throw new NotImplementedException("Không tìm thấy sản phẩm");
         }
 
-        public async Task UpdateProductAsync(int id, ProductModel model)
+        public async Task UpdateProductAsync(int id, InputProductModel model)
         {
             var existingProduct = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == id);
+
             if (existingProduct == null)
             {
-                throw new KeyNotFoundException("Không tìm thấy sản phẩm");
+                throw new KeyNotFoundException("Không tìm thấy id sản phẩm");
             }
 
-            // Cập nhật các thuộc tính từ model
-            _mapper.Map(model, existingProduct);
+            existingProduct.ProductName = !string.IsNullOrEmpty(model.ProductName) ? model.ProductName : existingProduct.ProductName;
+
+            existingProduct.Description = !string.IsNullOrEmpty(model.Description) ? model.Description : existingProduct.Description;
+
+            existingProduct.CostPrice = model.CostPrice > 0 ? model.CostPrice : existingProduct.CostPrice;
+
+            existingProduct.SellPrice = model.SellPrice > 0 ? model.SellPrice : existingProduct.SellPrice;
+
+            existingProduct.StockQuantity = model.StockQuantity > 0 ? model.StockQuantity : existingProduct.StockQuantity;
+
+            existingProduct.ReorderLevel = model.ReorderLevel > 0 ? model.ReorderLevel : existingProduct.ReorderLevel;
+
+            existingProduct.CategoryID = model.CategoryID > 0 ? model.CategoryID : existingProduct.CategoryID;
 
             _context.Products.Update(existingProduct);
             await _context.SaveChangesAsync();
         }
     }
-    }
+}
 
