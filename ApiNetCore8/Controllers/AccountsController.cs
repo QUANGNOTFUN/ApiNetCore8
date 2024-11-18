@@ -38,10 +38,30 @@ namespace ApiNetCore8.Controllers
             }
             return Ok(new { Message = "Tài khoản đã được tạo thành công." });
         }
-        [HttpGet("GetUser")]
-        public async Task<ActionResult<ApplicationUser>> GetUserByEmployeeCode(string employeeCode)
+
+        [HttpGet("get-all-users")]
+        public async Task<ActionResult<List<UserModel>>> GetAllUsers()
         {
-            var user = await _accountRepository.GetUserAsync(employeeCode);
+            try
+            {
+                var users = await _accountRepository.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Đã xảy ra lỗi trong hệ thống.", Details = ex.Message });
+            }
+        }
+
+
+        [HttpGet("GetUser")]
+        public async Task<IActionResult> GetUserByEmpyeeId(string EmployeeId)
+        {
+            var user = await _accountRepository.GetUserAsync(EmployeeId);
             if (user == null)
             {
                 return NotFound("Không tìm thấy nhân viên với mã nhân viên đã cho.");
@@ -50,18 +70,27 @@ namespace ApiNetCore8.Controllers
             return Ok(user);
         }
         [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateUserByEmployeeCode(string employeeCode, UserModel model)
+        public async Task<IActionResult> UpdateUserByEmpyeeId(string EmployeeId, UserModel model)
         {
-            var result = await _accountRepository.UpdateUserAsync(employeeCode, model);
-            if (result.Succeeded)
+            try
             {
-                return NoContent();
+                var result = await _accountRepository.UpdateUserAsync(EmployeeId, model);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new { Message = "Cập nhật không thành công.", Errors = result.Errors });
+                }
+
+                return Ok(new { Message = "Thông tin người dùng đã được cập nhật thành công." });
             }
-
-            return BadRequest(result.Errors);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
+            }
         }
-
-
 
     }
 }
