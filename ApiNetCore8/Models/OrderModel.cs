@@ -20,10 +20,4 @@ namespace ApiNetCore8.Models
         public List<OrderDetailModel> OrderDetails { get; set; } 
 
     }
-    public class addOrderModel
-    {
-        public DateTime OrderDate { get; set; }
-        public int SupplierId { get; set; }
-        public List<addOrderDetailModel> addOrderDetails { get; set; }
-    }
 }
