@@ -20,16 +20,4 @@ namespace ApiNetCore8.Models
         [Required]
         public int Quantity { get; set; }
     }
-<<<<<<< Updated upstream
-=======
-    public class addOrderDetailModel
-    { 
-        [ForeignKey("Product")]
-        public int ProductId { get; set; }
-
-        [Column(TypeName = "decimal(18,2)")]
-        [Required]
-        public int Quantity { get; set; }
-    }
->>>>>>> Stashed changes
 }

@@ -21,7 +21,6 @@
 
         public async Task<int> AddOrderAsync(string button, OrderModel model)
         {
-<<<<<<< Updated upstream
             var newOrder = _mapper.Map<Order>(model);
 
             
@@ -30,26 +29,11 @@
 
             newOrder.Status = "Pending";
     
-=======
-            // Tạo đối tượng Order mới
-            var newOrder = new Order
-            {
-                OrderDate = model.OrderDate,
-                SupplierId = model.SupplierId,
-                OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
-                Status = "Pending",
-                totalPrice = 0, 
-                OrderDetails = new List<OrderDetail>() 
-            };
->>>>>>> Stashed changes
 
-            int totalPrice = 0;
+            await _context.Orders.AddAsync(newOrder);
+            await _context.SaveChangesAsync();
 
-<<<<<<< Updated upstream
             if (model.OrderDetails != null && model.OrderDetails.Any())
-=======
-            if (model.addOrderDetails != null && model.addOrderDetails.Any())
->>>>>>> Stashed changes
             {
                 foreach (var detail in model.OrderDetails)
                 {
@@ -60,7 +44,6 @@
                         throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
                     }
 
-<<<<<<< Updated upstream
                    
                     if (button == "Đặt hàng")
                     {
@@ -80,33 +63,9 @@
                     newDetail.OrderId = newOrder.OrderId;
                     await _context.OrderDetails.AddAsync(newDetail);
                 }
-=======
-                    decimal unitPrice = button == "Đặt hàng" ? product.CostPrice : product.SellPrice;
 
-                    if (button == "Xuất hàng" && product.StockQuantity < detail.Quantity)
-                    {
-                        throw new InvalidOperationException($"Không đủ hàng trong kho cho sản phẩm ID {detail.ProductId}.");
-                    }
-
-                    var newDetail = new OrderDetail
-                    {
-                        OrderDetailName = product.ProductName,
-                        ProductId = detail.ProductId,
-                        Quantity = detail.Quantity,
-                        UnitPrice = unitPrice
-                    };
-
-                    newOrder.OrderDetails.Add(newDetail);
->>>>>>> Stashed changes
-
-                    totalPrice += (int)(unitPrice * detail.Quantity);
-                }
+                await _context.SaveChangesAsync();
             }
-
-            newOrder.totalPrice = totalPrice;
-
-            await _context.Orders.AddAsync(newOrder);
-            await _context.SaveChangesAsync();
 
             return newOrder.OrderId;
         }
@@ -211,16 +170,10 @@
                 throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
             }
 
-<<<<<<< Updated upstream
             // Cập nhật trạng thái
             order.Status = status;
 
             // Nếu hành động là xác nhận, xử lý số lượng sản phẩm
-=======
-            // Cập nhật trạng thái đơn hàng
-            order.Status = status;
-
->>>>>>> Stashed changes
             if (action == "confirm" && status == "Successful")
             {
                 foreach (var detail in order.OrderDetails)
