@@ -45,7 +45,7 @@ namespace ApiNetCore8.Controllers
         {
             try
             {
-                var products = await _repo.GetLowStockProductsAsync(page, pageSize = 20);
+                var products = await _repo.GetLowStockProductsAsync(page, pageSize);
                 if (products == null || !products.Items.Any())
                 {
                     return NotFound("Không có sản phẩm đang thiếu!");
