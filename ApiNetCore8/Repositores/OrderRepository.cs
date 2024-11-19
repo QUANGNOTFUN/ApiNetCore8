@@ -48,13 +48,17 @@
                     }
 
                     // Tính giá đơn vị dựa vào loại đơn hàng
-                    decimal unitPrice = button == "Đặt hàng"
+                    decimal unitPrice = (button == "Đặt hàng")
                         ? product.CostPrice * detail.Quantity
                         : product.SellPrice * detail.Quantity;
-
+                    if (unitPrice == 0)
+                    {
+                        throw new InvalidOperationException("Tổng đơn giá chi tiết = 0");
+                    }
                     // Thêm chi tiết đơn hàng
                     var newDetail = new OrderDetail
                     {
+                        OrderDetailName = product.ProductName,
                         ProductId = detail.ProductId,
                         Quantity = detail.Quantity,
                         UnitPrice = unitPrice,
@@ -63,6 +67,7 @@
 
                     // Thêm vào danh sách chi tiết đơn hàng của Order
                     newOrder.OrderDetails.Add(newDetail);
+                    _context.OrderDetails.Add(newDetail);
 
                     // Cộng vào tổng giá trị của đơn hàng
                     totalPrice += unitPrice;

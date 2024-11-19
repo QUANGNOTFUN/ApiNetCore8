@@ -28,7 +28,7 @@ namespace ApiNetCore8.Controllers
         // GET: api/Orders
         [HttpGet("all-Orders")]
         //[Authorize]
-        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page, int pageSize)
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page = 1, int pageSize = 20)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace ApiNetCore8.Controllers
         }
 
 
-        [HttpPut("update-order-status/{orderId}")]
+        [HttpPut("update-order-status")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string action)
         {
             try
@@ -119,33 +119,5 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-
-
-        [HttpPut("update-Order")]
-        //[Authorize]
-        public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
-        {
-            if (model == null) // Kiểm tra nếu model là null
-            {
-                return BadRequest("Order data is null.");
-            }
-
-            try
-            {
-                // Kiểm tra xem danh mục có tồn tại không
-                var existingOrder = await _repo.GetOrderByIdAsync(id);
-                if (existingOrder == null)
-                {
-                    return NotFound();
-                }
-
-                await _repo.UpdateOrderAsync(id, model);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
     }
 }
