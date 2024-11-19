@@ -1,5 +1,4 @@
-﻿using ApiNetCore8.Data;
-using ApiNetCore8.Models;
+﻿using ApiNetCore8.Models;
 using ApiNetCore8.Repositores;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -38,30 +37,6 @@ namespace ApiNetCore8.Controllers
             }
             return Ok(new { Message = "Tài khoản đã được tạo thành công." });
         }
-        [HttpGet("GetUser")]
-        public async Task<ActionResult<ApplicationUser>> GetUserByEmployeeCode(string employeeCode)
-        {
-            var user = await _accountRepository.GetUserAsync(employeeCode);
-            if (user == null)
-            {
-                return NotFound("Không tìm thấy nhân viên với mã nhân viên đã cho.");
-            }
-
-            return Ok(user);
-        }
-        [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateUserByEmployeeCode(string employeeCode, UserModel model)
-        {
-            var result = await _accountRepository.UpdateUserAsync(employeeCode, model);
-            if (result.Succeeded)
-            {
-                return NoContent();
-            }
-
-            return BadRequest(result.Errors);
-        }
-
-
 
     }
 }

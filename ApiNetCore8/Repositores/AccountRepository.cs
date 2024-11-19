@@ -2,7 +2,6 @@
 using ApiNetCore8.Helpers;
 using ApiNetCore8.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -89,32 +88,6 @@ namespace ApiNetCore8.Repositores
             }
 
             return result;
-        }
-        public async Task<ApplicationUser?> GetUseAsync(string employeeCode)
-        {
-            return await UserManager.Users.FirstOrDefaultAsync(u => u.EmployeeCode == employeeCode);
-        }
-        public async Task<IdentityResult> UpdateUserAsync(string employeeCode, UserModel model)
-        {
-            var user = await GetUserAsync(employeeCode);
-            if (user == null)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Không tìm thấy nhân viên với mã nhân viên đã cho." });
-            }
-
-            // Cập nhật thông tin
-            user.FirstName = model.FirstName ?? user.FirstName;
-            user.LastName = model.LastName ?? user.LastName;
-            user.Address = model.Address ?? user.Address;
-            user.Position = model.Position ?? user.Position;
-            user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
-
-            return await UserManager.UpdateAsync(user);
-        }
-
-        public Task<ApplicationUser> GetUserAsync(string employeeCode)
-        {
-            throw new NotImplementedException();
         }
     }
 }
