@@ -28,7 +28,7 @@ namespace ApiNetCore8.Controllers
         // GET: api/Orders
         [HttpGet("all-Orders")]
         //[Authorize]
-        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page, int pageSize)
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page = 1, int pageSize = 20)
         {
             try
             {
@@ -69,98 +69,53 @@ namespace ApiNetCore8.Controllers
 
 
         // POST: api/Orders
-        // POST: api/Orders
-        [HttpPost("add-Order")]
-        public async Task<ActionResult<OrderModel>> AddOrder(string button,OrderModel model)
+        // API Thêm đơn hàng
+        [HttpPost("add-order")]
+        public async Task<IActionResult> AddOrder(string button, [FromBody] addOrderModel model)
         {
-            if (model == null)
-            {
-                return BadRequest("Dữ liệu đơn hàng bị trống.");
-            }
+            if (model == null || !model.addOrderDetails.Any())
+                return BadRequest("Dữ liệu đơn hàng không hợp lệ.");
 
             try
             {
                 var newOrderId = await _repo.AddOrderAsync(button, model);
-
-                if (newOrderId <= 0)
-                {
-                    return BadRequest("Tạo đơn hàng không thành công.");
-                }
-
-                // Xử lý danh sách ProductModels nếu có
-                if (model.ProductModels != null && model.ProductModels.Any())
-                {
-                    foreach (var product in model.ProductModels)
-                    {
-                        // Tìm sản phẩm hiện tại trong kho dựa trên ID của nó
-                        var existingProduct = await _productRepository.GetProductByIdAsync(product.ProductID);
-                        if (existingProduct != null)
-                        {
-                            // Cập nhật số lượng trong kho với số lượng của đơn hàng
-                            existingProduct.StockQuantity += product.StockQuantity;
-
-                            // Cập nhật lại kho hàng (giả sử có phương thức cập nhật trong _repo)
-                            await _productRepository.UpdateProductAsync(product.ProductID, existingProduct);
-                        }
-                        else
-                        {
-                            return NotFound($"Không tìm thấy sản phẩm với ID {product.ProductID}.");
-                        }
-                    }
-                }
-
-                var newOrder = await _repo.GetOrderByIdAsync(newOrderId);
-                return CreatedAtAction(nameof(GetOrderById), new { id = newOrderId }, newOrder);
+                return Ok(new { Message = "Đơn hàng đã được thêm.", OrderId = newOrderId });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
-        [HttpPut("update-Order")]
-        //[Authorize]
-        public async Task<ActionResult> UpdateOrder(int id, OrderModel model)
-        {
-            if (model == null) // Kiểm tra nếu model là null
-            {
-                return BadRequest("Order data is null.");
-            }
 
-            try
-            {
-                // Kiểm tra xem danh mục có tồn tại không
-                var existingOrder = await _repo.GetOrderByIdAsync(id);
-                if (existingOrder == null)
-                {
-                    return NotFound();
-                }
 
-                await _repo.UpdateOrderAsync(id, model);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-        [HttpDelete("delete-Order")]
-        //[Authorize]
-        public async Task<ActionResult> DeleteOrder(int id)
+        [HttpPut("update-order-status")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, string action)
         {
             try
             {
-                var existingOrder = await _repo.GetOrderByIdAsync(id);
-                if (existingOrder == null)
+                string status;
+
+                if (action == "confirm")
                 {
-                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
+                    status = "Successful";
+                }
+                else if (action == "cancel")
+                {
+                    status = "Cancel";
+                }
+                else
+                {
+                    return BadRequest("Hành động không hợp lệ.");
                 }
 
-                await _repo.DeleteOrderAsync(id); // Gọi phương thức xóa
-                return NoContent(); // Trả về 204 No Content nếu xóa thành công
+               
+                await _repo.UpdateOrderStatusAndQuantityAsync(orderId, status, action);
+
+                return Ok($"Trạng thái và số lượng của đơn hàng đã được cập nhật: {status}");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
 

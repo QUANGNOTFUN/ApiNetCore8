@@ -14,6 +14,8 @@ namespace ApiNetCore8.Data
         [Required]
         public DateTime OrderDate { get; set; }
 
+        public decimal TotalPrice { get; set; }
+
         [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
         [MaxLength(50)]

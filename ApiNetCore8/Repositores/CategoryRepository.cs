@@ -4,6 +4,7 @@ using ApiNetCore8.Repositores;
 using AutoMapper;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApiNetCore8.Repositories
 {
@@ -189,19 +190,6 @@ namespace ApiNetCore8.Repositories
                 model.Description = category.Description;
             }
 
-            foreach (var suppId in model.Supplier)
-            {
-                if (suppId.SupplierIdNew != 0)
-                {
-                    var existSupp = await _context.Suppliers.FirstOrDefaultAsync(s => s.SupplierId == suppId.SupplierIdNew);
-                    if (existSupp == null)
-                    {
-                        throw new KeyNotFoundException("Không có id nhà cung cấp để cập nhật");
-                    }
-                }
-            }
-
-
             return model;
         }
 
@@ -218,23 +206,34 @@ namespace ApiNetCore8.Repositories
             category.CategoryName = checkModel.CategoryName;
             category.Description = checkModel.Description;
 
-            // Cập nhật danh sách nhà cung cấp
-            foreach (var supplierUpdate in checkModel.Supplier)
+            if (checkModel.SupplierIdNew != null && checkModel.SupplierIdNew.Any())
             {
-                if (supplierUpdate.SupplierIdOld != 0 && supplierUpdate.SupplierIdNew != 0)
+                // Loại bỏ các ID bằng 0
+                checkModel.SupplierIdNew.RemoveAll(id => id == 0);
+
+                if (!checkModel.SupplierIdNew.Any())
                 {
-                    // Trường hợp thay đổi từ SupplierIdOld sang SupplierIdNew
-                    var oldSupplier = category.Suppliers.FirstOrDefault(s => s.SupplierId == supplierUpdate.SupplierIdOld);
-                    if (oldSupplier != null)
-                    {
-                        oldSupplier.SupplierId = supplierUpdate.SupplierIdNew;
-                    }
+                    throw new InvalidOperationException("Danh sách ID nhà cung cấp chỉ chứa giá trị không hợp lệ (0).");
                 }
-                else if (supplierUpdate.SupplierIdNew != 0 && supplierUpdate.SupplierIdOld == 0)
+
+                // Xóa toàn bộ danh sách nhà cung cấp cũ
+                category.Suppliers.Clear();
+
+                // Lấy danh sách nhà cung cấp từ cơ sở dữ liệu dựa trên danh sách ID
+                var newSuppliers = await _context.Suppliers
+                    .Where(s => checkModel.SupplierIdNew.Contains(s.SupplierId))
+                    .ToListAsync();
+
+                // Kiểm tra số lượng nhà cung cấp tìm được có khớp với danh sách ID
+                if (newSuppliers.Count != checkModel.SupplierIdNew.Count)
                 {
-                    // Trường hợp thêm nhà cung cấp mới
-                    var newSupplier = await _context.Suppliers.FirstOrDefaultAsync(s => s.SupplierId == supplierUpdate.SupplierIdNew);
-                    if (newSupplier != null && !category.Suppliers.Contains(newSupplier))
+                    throw new InvalidOperationException("Không tìm thấy đầy đủ nhà cung cấp theo danh sách ID được cung cấp.");
+                }
+
+                // Thêm tất cả nhà cung cấp mới vào danh sách
+                foreach (var newSupplier in newSuppliers)
+                {
+                    if (!category.Suppliers.Contains(newSupplier))
                     {
                         category.Suppliers.Add(newSupplier);
                     }

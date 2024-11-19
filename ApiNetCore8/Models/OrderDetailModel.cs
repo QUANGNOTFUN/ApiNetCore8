@@ -20,4 +20,12 @@ namespace ApiNetCore8.Models
         [Required]
         public int Quantity { get; set; }
     }
+    public class addOrderDetailModel
+    {
+        [ForeignKey("Product")]
+        public int ProductId { get; set; }
+
+        [Required]
+        public int Quantity { get; set; }
+    }
 }

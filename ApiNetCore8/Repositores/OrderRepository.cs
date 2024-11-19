@@ -19,37 +19,72 @@
            
             }
 
-        public async Task<int> AddOrderAsync(string button, OrderModel model)
+        public async Task<int> AddOrderAsync(string button, addOrderModel model)
         {
-            var newOrder = _mapper.Map<Order>(model);
-
-            if (button == "Đặt hàng")
+            // Tạo đối tượng Order mới
+            var newOrder = new Order
             {
-                newOrder.OrderName = "Đơn đặt hàng";
-            }
-            else if (button == "Xuất hàng")
+                OrderDate = DateTime.Now,
+                SupplierId = model.SupplierId,
+                OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
+                Status = "Pending",
+                TotalPrice = 0,
+                OrderDetails = new List<OrderDetail>() // Khởi tạo danh sách chi tiết đơn hàng
+            };
+
+            decimal totalPrice = 0; // Tổng giá trị đơn hàng
+
+            // Thêm chi tiết đơn hàng
+            if (model.addOrderDetails != null && model.addOrderDetails.Any())
             {
-                newOrder.OrderName = "Đơn Xuất hàng";
+                foreach (var detail in model.addOrderDetails)
+                {
+                    // Lấy thông tin sản phẩm từ ProductId
+                    var product = await _context.Products.SingleOrDefaultAsync(p => p.ProductID == detail.ProductId);
+
+                    if (product == null)
+                    {
+                        throw new KeyNotFoundException($"Không tìm thấy sản phẩm với ID {detail.ProductId}");
+                    }
+
+                    // Tính giá đơn vị dựa vào loại đơn hàng
+                    decimal unitPrice = (button == "Đặt hàng")
+                        ? product.CostPrice * detail.Quantity
+                        : product.SellPrice * detail.Quantity;
+                    if (unitPrice == 0)
+                    {
+                        throw new InvalidOperationException("Tổng đơn giá chi tiết = 0");
+                    }
+                    // Thêm chi tiết đơn hàng
+                    var newDetail = new OrderDetail
+                    {
+                        OrderDetailName = product.ProductName,
+                        ProductId = detail.ProductId,
+                        Quantity = detail.Quantity,
+                        UnitPrice = unitPrice,
+                        OrderId = newOrder.OrderId
+                    };
+
+                    // Thêm vào danh sách chi tiết đơn hàng của Order
+                    newOrder.OrderDetails.Add(newDetail);
+                    _context.OrderDetails.Add(newDetail);
+
+                    // Cộng vào tổng giá trị của đơn hàng
+                    totalPrice += unitPrice;
+                }
             }
 
+            // Cập nhật tổng giá trị vào đơn hàng
+            newOrder.TotalPrice = totalPrice;
 
+            // Lưu đơn hàng và chi tiết vào cơ sở dữ liệu
             await _context.Orders.AddAsync(newOrder);
             await _context.SaveChangesAsync();
 
-   
-            if (model.OrderDetails != null && model.OrderDetails.Any())
-            {
-                foreach (var detail in model.OrderDetails)
-                {
-                    var newDetail = _mapper.Map<OrderDetail>(detail);
-                    newDetail.OrderId = newOrder.OrderId;
-                    await _context.OrderDetails.AddAsync(newDetail);
-                }
-                await _context.SaveChangesAsync();
-            }
-
             return newOrder.OrderId;
         }
+
+
 
 
         public async Task DeleteOrderAsync(int id)
@@ -113,7 +148,7 @@
             public async Task<OrderModel> GetOrderByIdAsync(int id)
             {
             var order = await _context.Orders
-            .Include(o => o.OrderDetails)       // Bao gồm chi tiết đơn hàng
+            .Include(o => o.OrderDetails)      
             .ThenInclude(od => od.Product)
             .SingleOrDefaultAsync(o => o.OrderId == id);
 
@@ -138,5 +173,63 @@
                 _context.Orders.Update(Order);
                 await _context.SaveChangesAsync();
             }
+        public async Task UpdateOrderStatusAndQuantityAsync(int orderId, string status, string action)
+        {
+            // Tìm đơn hàng theo ID
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            order.Status = status;
+
+            // Nếu xác nhận đơn hàng, xử lý tồn kho và tính toán tổng giá trị đơn hàng
+            if (action == "confirm" && status == "Successful")
+            {
+                int totalPrice = 0;
+
+                foreach (var detail in order.OrderDetails)
+                {
+                    var product = detail.Product;
+
+                    if (product == null)
+                    {
+                        throw new KeyNotFoundException($"Sản phẩm với ID {detail.ProductId} không tồn tại.");
+                    }
+
+                    // Xử lý nhập hàng
+                    if (order.OrderName == "Đơn đặt hàng")
+                    {
+                        product.StockQuantity += detail.Quantity;
+                    }
+                    // Xử lý xuất hàng
+                    else if (order.OrderName == "Đơn xuất hàng")
+                    {
+                        if (product.StockQuantity < detail.Quantity)
+                        {
+                            throw new InvalidOperationException($"Không đủ hàng trong kho cho sản phẩm ID {detail.ProductId}.");
+                        }
+                        product.StockQuantity -= detail.Quantity;
+                    }
+
+                    // Tính tổng giá trị của đơn hàng
+                    totalPrice += (int)(detail.UnitPrice * detail.Quantity);
+                }
+
+                // Cập nhật tổng giá trị vào đơn hàng
+                order.TotalPrice = totalPrice;
+            }
+
+            // Lưu thay đổi
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
         }
+
     }
+}

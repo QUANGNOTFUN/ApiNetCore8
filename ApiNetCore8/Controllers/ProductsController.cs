@@ -18,7 +18,7 @@ namespace ApiNetCore8.Controllers
             _repo = repo;
         }
 
-        // GET: api/Products/all-product?page={page}&pageSize={pageSize}
+        // GET: api/Products/all-product
         [HttpGet("all-product")]
         public async Task<ActionResult<PagedResult<ProductModel>>> GetAllProducts(int page = 1, int pageSize = 20)
         {
@@ -45,7 +45,7 @@ namespace ApiNetCore8.Controllers
         {
             try
             {
-                var products = await _repo.GetLowStockProductsAsync(page, pageSize = 20);
+                var products = await _repo.GetLowStockProductsAsync(page, pageSize);
                 if (products == null || !products.Items.Any())
                 {
                     return NotFound("Không có sản phẩm đang thiếu!");
@@ -104,13 +104,8 @@ namespace ApiNetCore8.Controllers
         // POST: api/Products/add-product?model={formbody}
         [HttpPost("add-product")]
         //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<ProductModel>> AddProduct(ProductModel model)
+        public async Task<ActionResult<InputProductModel>> AddProduct(InputProductModel model)
         {
-            if (model == null) // Kiểm tra nếu model là null
-            {
-                return BadRequest("Thông tin sản phẩm bị trống");
-            }
-
             // Xác thực model
             if (!ModelState.IsValid)
             {
@@ -133,8 +128,8 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Products/update-product?id={id}&model={formbody}
         [HttpPut("update-product")]
-        [Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult> UpdateProduct(int id, ProductModel model)
+        //[Authorize(Roles = InventoryRole.Staff)]
+        public async Task<ActionResult> UpdateProduct(int id, InputProductModel model)
         {
             if (model == null)
             {
@@ -150,8 +145,8 @@ namespace ApiNetCore8.Controllers
                 }
 
                 // Cập nhật thông tin sản phẩm
-                await _repo.UpdateProductAsync(id, model); // Sửa lại để sử dụng model mới
-                return NoContent();
+                await _repo.UpdateProductAsync(id, model); 
+                return Ok("Đã cập nhật thành công sản phẩm");
             }
             catch (Exception ex)
             {

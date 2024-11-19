@@ -113,54 +113,6 @@ namespace ApiNetCore8.Controllers
             }
         }
 
-
-        [HttpPut("update-OrderDetail")]
-        //[Authorize]
-        public async Task<ActionResult> UpdateOrderDetail(int id, OrderDetailModel model)
-        {
-            if (model == null) // Kiểm tra nếu model là null
-            {
-                return BadRequest("OrderDetail data is null.");
-            }
-
-            try
-            {
-                // Kiểm tra xem danh mục có tồn tại không
-                var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(id);
-                if (existingOrderDetail == null)
-                {
-                    return NotFound();
-                }
-
-                await _repo.UpdateOrderDetailAsync(id, model);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-
-        }
-        [HttpDelete("delete-OrderDetail")]
-        //[Authorize]
-        public async Task<ActionResult> DeleteOrderDetail(int id)
-        {
-            try
-            {
-                var existingOrderDetail = await _repo.GetOrderDetailByIdAsync(id);
-                if (existingOrderDetail == null)
-                {
-                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
-                }
-
-                await _repo.DeleteOrderDetailAsync(id); // Gọi phương thức xóa
-                return NoContent(); // Trả về 204 No Content nếu xóa thành công
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
     }
 }
 
