@@ -8,8 +8,7 @@ namespace ApiNetCore8.Repositores
     {
         public Task<IdentityResult> SignUpAsync(SignUpModel model);
         public Task<string> SignInAsync(SignInModel model);
-        public Task<UserModel> GetUserAsync(string employeeId);
-        public Task<IdentityResult> UpdateUserAsync(string employeeId, UserModel model);
-        public Task<List<UserModel>> GetAllUsersAsync();
+        public Task<ApplicationUser> GetUserAsync(string employeeCode);
+        public Task<IdentityResult> UpdateUserAsync(string employeeCode, UserModel model);
     }
 }

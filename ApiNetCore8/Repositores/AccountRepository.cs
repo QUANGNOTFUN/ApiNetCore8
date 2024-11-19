@@ -75,140 +75,46 @@ namespace ApiNetCore8.Repositores
                 Email = model.Email,
                 UserName = model.Email
             };
-
             var result = await UserManager.CreateAsync(user,model.Password);
 
             if (result.Succeeded) 
-            {
-                if (model.Role == "Staff")
+            { 
+                // Kiểm tra role Staff
+                if(!await roleManager.RoleExistsAsync(InventoryRole.Staff))
                 {
-                    // Kiểm tra role Staff
-                    if (!await roleManager.RoleExistsAsync(InventoryRole.Staff))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
-                    }
-
-
-                    await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
-
-                } else if (model.Role == "Manager") {
-                    // Kiểm tra role Staff
-
-                    if (!await roleManager.RoleExistsAsync(InventoryRole.Manager))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Manager));
-                    }
-
-
-                    await UserManager.AddToRoleAsync(user, InventoryRole.Manager);
-
-                } else
-                {
-                    // Kiểm tra role Staff
-                    if (!await roleManager.RoleExistsAsync(InventoryRole.Admin))
-
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Admin));
-                    }
-
-
-                    await UserManager.AddToRoleAsync(user, InventoryRole.Admin);
+                    await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
                 }
 
-               
+                await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
             }
 
             return result;
         }
-        public async Task<UserModel> GetUserAsync(string employeeId)
+        public async Task<ApplicationUser?> GetUseAsync(string employeeCode)
         {
-            if (Guid.TryParse(employeeId, out Guid employeeGuid))
-            {
-                var existUser = await UserManager.Users.FirstOrDefaultAsync(u => u.Id == employeeGuid);
-                if (existUser == null)
-                {
-                    throw new KeyNotFoundException("Không có user tồn tại");
-                }
-
-                return new UserModel
-                {
-                    FirstName = existUser.FirstName,
-                    LastName = existUser.LastName,
-                    PhoneNumber = existUser.PhoneNumber
-                    // Role = existUser.Role (nếu cần)
-                };
-            }
-            else
-            {
-                throw new ArgumentException("EmployeeId không hợp lệ.");
-            }
+            return await UserManager.Users.FirstOrDefaultAsync(u => u.EmployeeCode == employeeCode);
         }
-
-
-        public async Task<List<UserModel>> GetAllUsersAsync()
+        public async Task<IdentityResult> UpdateUserAsync(string employeeCode, UserModel model)
         {
-            // Lấy danh sách tất cả người dùng từ bảng AspNetUsers
-            var users = await UserManager.Users.ToListAsync();
-
-            if (users == null || !users.Any())
-            {
-                throw new KeyNotFoundException("Không có người dùng nào tồn tại.");
-            }
-
-            var userList = new List<UserModel>();
-
-            // Lấy thông tin cho từng người dùng và ánh xạ sang UserModel
-            foreach (var user in users)
-            {
-                // Lấy danh sách các roles của người dùng (nếu có)
-                var roles = await UserManager.GetRolesAsync(user);
-
-                // Thêm người dùng vào danh sách với các thông tin cần thiết
-                userList.Add(new UserModel
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.PhoneNumber,
-                    Role = string.Join(", ", roles) // Ghép các role thành một chuỗi
-                });
-            }
-
-            return userList;
-        }
-
-        public async Task<IdentityResult> UpdateUserAsync(string employeeId, UserModel model)
-        {
-            // Kiểm tra và chuyển đổi employeeId thành Guid
-            if (!Guid.TryParse(employeeId, out Guid userId))
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Mã nhân viên không hợp lệ." });
-            }
-
-            // Tìm người dùng theo Id kiểu Guid
-            var user = await UserManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await GetUserAsync(employeeCode);
             if (user == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Không tìm thấy nhân viên với mã nhân viên đã cho." });
             }
 
-            // Cập nhật thông tin người dùng
+            // Cập nhật thông tin
             user.FirstName = model.FirstName ?? user.FirstName;
             user.LastName = model.LastName ?? user.LastName;
+            user.Address = model.Address ?? user.Address;
+            user.Position = model.Position ?? user.Position;
             user.PhoneNumber = model.PhoneNumber ?? user.PhoneNumber;
 
-            // Cập nhật role nếu có trong model
-            if (!string.IsNullOrEmpty(model.Role))
-            {
-                var currentRoles = await UserManager.GetRolesAsync(user);
-                await UserManager.RemoveFromRolesAsync(user, currentRoles); // Xoá các roles cũ
-                await UserManager.AddToRoleAsync(user, model.Role); // Thêm role mới
-            }
-
-            // Lưu thay đổi vào cơ sở dữ liệu
             return await UserManager.UpdateAsync(user);
         }
 
-
-
+        public Task<ApplicationUser> GetUserAsync(string employeeCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
