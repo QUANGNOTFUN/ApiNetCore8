@@ -89,5 +89,28 @@ namespace ApiNetCore8.Repositores
 
             return result;
         }
+
+        // lấy thông tin user đăng nhập
+        public async Task<ApplicationUser> GetLoggedInUserAsync(ClaimsPrincipal userPrincipal)
+        {
+            if (userPrincipal == null)
+            {
+                return null;
+            }
+
+            // Lấy email từ ClaimsPrincipal
+            var email = userPrincipal.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return null;
+            }
+
+            // Tìm thông tin người dùng từ UserManager
+            var user = await UserManager.FindByEmailAsync(email);
+
+            return user;
+        }
+
     }
 }
