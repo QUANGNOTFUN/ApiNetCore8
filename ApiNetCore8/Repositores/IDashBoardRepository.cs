@@ -6,5 +6,7 @@ namespace ApiNetCore8.Repositores
     {
         public Task<DashBoardModel> GetDashBoardInDayAsync();
         public Task<DashBoardModel> GetDashBoardAllAsync();
+        Task<DashBoardSummaryModel> GetSummaryAsync();
+
     }
 }

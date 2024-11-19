@@ -55,5 +55,24 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetSummary()
+        {
+            try
+            {
+                var summary = await _repo.GetSummaryAsync();
+
+                if (summary == null)
+                {
+                    return NotFound("Không có dữ liệu tổng hợp.");
+                }
+
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
+            }
+        }
     }
 }

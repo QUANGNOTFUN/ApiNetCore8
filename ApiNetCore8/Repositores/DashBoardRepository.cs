@@ -77,5 +77,19 @@ namespace ApiNetCore8.Repositores
 
             return dashBoard;
         }
+
+        public async Task<DashBoardSummaryModel> GetSummaryAsync()
+        {
+            var totalProducts = await _context.Products.CountAsync();
+            var totalCategories = await _context.Categories.CountAsync();
+            var totalSuppliers = await _context.Suppliers.CountAsync();
+
+            return new DashBoardSummaryModel
+            {
+                TotalProducts = totalProducts,
+                TotalCategories = totalCategories,
+                TotalSuppliers = totalSuppliers
+            };
+        }
     }
 }
