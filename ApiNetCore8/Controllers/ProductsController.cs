@@ -41,7 +41,7 @@ namespace ApiNetCore8.Controllers
         // GET: api/Products/low-stock?page={page}&pageSize={pageSize}
         [HttpGet("low-stock")]
         // [Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<IEnumerable<ProductModel>>> GetLowStockProducts(int page = 1, int pageSize = 20)
+        public async Task<ActionResult<IEnumerable<LowProductModel>>> GetLowStockProducts(int page = 1, int pageSize = 20)
         {
             try
             {

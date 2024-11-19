@@ -46,4 +46,25 @@ namespace ApiNetCore8.Models
         [Required(ErrorMessage = "Hãy nhập id danh mục sản phẩm")]
         public int CategoryID { get; set; }
     }
+
+    public class LowProductModel
+    {
+        public int ProductID { get; set; }
+
+        public string ProductName { get; set; }
+
+        public string? Description { get; set; }
+
+        public decimal CostPrice { get; set; }
+
+        public decimal SellPrice { get; set; }
+
+        public int StockQuantity { get; set; }
+
+        public int ReorderLevel { get; set; }
+
+        public int CategoryID { get; set; }
+
+        public List<int> SupplierIds { get; set; } = new List<int>(); // Đổi tên cho đúng cú pháp
+    }
 }
