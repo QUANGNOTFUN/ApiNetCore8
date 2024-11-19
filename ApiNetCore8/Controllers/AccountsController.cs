@@ -1,7 +1,9 @@
 ﻿using ApiNetCore8.Data;
+using ApiNetCore8.Helpers;
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositores;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -63,6 +65,34 @@ namespace ApiNetCore8.Controllers
                 user.Email,
                 Roles = roles
             });
+        }
+
+        [HttpGet("get-all-users")]
+        [Authorize(Roles = InventoryRole.Admin)]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            // Lấy danh sách tất cả người dùng từ UserManager
+            var users = _userManager.Users.ToList();
+
+            // Chuẩn bị danh sách thông tin người dùng
+            var userList = new List<object>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user); // Lấy các vai trò của từng user
+                userList.Add(new
+                {
+                    user.Id,
+                    user.FirstName,
+                    user.LastName,
+                    user.Email,
+                    user.UserName,
+                    user.PhoneNumber,
+                    Roles = roles
+                });
+            }
+
+            // Trả về danh sách người dùng
+            return Ok(userList);
         }
 
     }

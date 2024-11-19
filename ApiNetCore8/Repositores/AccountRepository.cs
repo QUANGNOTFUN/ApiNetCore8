@@ -77,15 +77,37 @@ namespace ApiNetCore8.Repositores
             var result = await UserManager.CreateAsync(user,model.Password);
 
             if (result.Succeeded) 
-            { 
+            {
                 // Kiểm tra role Staff
-                if(!await roleManager.RoleExistsAsync(InventoryRole.Staff))
+                if (model.Role == "staff")
                 {
-                    await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
-                }
+                    if (!await roleManager.RoleExistsAsync(InventoryRole.Staff))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
+                    }
 
-                await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
+                    await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
+                } 
+                else if (model.Role == "maneger") // Kiểm tra role Maneger
+                {
+                    if (!await roleManager.RoleExistsAsync(InventoryRole.Manager))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Manager));
+                    }
+
+                    await UserManager.AddToRoleAsync(user, InventoryRole.Manager);
+                } 
+                else if (model.Role == "admin") // Kiểm tra role Admin
+                {
+                    if (!await roleManager.RoleExistsAsync(InventoryRole.Admin))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Admin));
+                    }
+
+                    await UserManager.AddToRoleAsync(user, InventoryRole.Admin);
+                }
             }
+                
 
             return result;
         }
