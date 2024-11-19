@@ -130,13 +130,23 @@
             {
                 var totalOrder = await _context.Orders.CountAsync(); // Đếm tổng số danh mục
                 var Orders = await _context.Orders
+                .Include(o => o.OrderDetails)
                     .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
                     .Take(pageSize) // Lấy số danh mục trong trang hiện tại
                     .ToListAsync();
 
-                var orderModels = _mapper.Map<List<OrderModel>>(Orders);
+            var orderModels = Orders.Select(order => new OrderModel
+            {
+                OrderId = order.OrderId,
+                OrderName = order.OrderName,
+                OrderDate = order.OrderDate,       
+                SupplierId = order.SupplierId,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                OrderDetailsId = order.OrderDetails.Select(orDT => orDT.OrderDetailId).ToList() ?? new List<int>()
+            }).ToList();
 
-                return new PagedResult<OrderModel>
+            return new PagedResult<OrderModel>
                 {
                     Items = orderModels,
                     TotalCount = totalOrder,
@@ -157,7 +167,18 @@
                 throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
             }
 
-            return _mapper.Map<OrderModel>(order);
+            var orderModel = new OrderModel
+            {
+                OrderId = order.OrderId,
+                OrderName = order.OrderName,
+                OrderDate = order.OrderDate,
+                SupplierId = order.SupplierId,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                OrderDetailsId = order.OrderDetails.Select(orDT => orDT.OrderDetailId).ToList() ?? new List<int>()
+            };
+
+            return orderModel;
         }
 
             public async Task UpdateOrderAsync(int id, OrderModel model)

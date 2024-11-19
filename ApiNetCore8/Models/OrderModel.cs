@@ -12,17 +12,13 @@ namespace ApiNetCore8.Models
         public string OrderName { get; set; }
         [Required]
         public DateTime OrderDate { get; set; }
-
-        [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } 
-        public List<OrderDetailModel> OrderDetails { get; set; } 
-
+        public List<int> OrderDetailsId { get; set; } = new List<int>();
     }
     public class addOrderModel
     {
-      
         public int SupplierId { get; set; }
         public List<addOrderDetailModel> addOrderDetails { get; set; }
     }

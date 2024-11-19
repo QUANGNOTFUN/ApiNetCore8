@@ -62,57 +62,6 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
             }
         }
-
-        // POST: api/OrderDetails
-        [HttpPost("add-OrderDetail")]
-        //[Authorize]
-        public async Task<ActionResult<OrderDetailModel>> AddOrderDetail(OrderDetailModel model)
-        {
-            if (model == null)
-            {
-                return BadRequest("Dữ liệu chi tiết đơn hàng bị trống."); // Thay đổi thông báo cho rõ ràng hơn
-            }
-
-            try
-            {
-                var newOrderDetailId = await _repo.AddOrderDetailAsync(model);
-
-                if (newOrderDetailId <= 0)
-                {
-                    return BadRequest("Tạo chi tiết đơn hàng không thành công."); // Thay đổi thông báo cho rõ ràng hơn
-                }
-
-                var newOrderDetail = await _repo.GetOrderDetailByIdAsync(newOrderDetailId);
-
-                return CreatedAtAction(nameof(GetOrderDetailById), new { id = newOrderDetailId }, newOrderDetail);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message);
-            }
-        }
-        [HttpGet("find-OrderDetail")]
-        //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<List<OrderDetailModel>>> FindOrderDetail(string name, int page = 1, int pageSize = 20)
-        {
-            try
-            {
-                // Tìm danh mục có tên chứa chuỗi ký tự 'name' (không phân biệt hoa thường)
-                var OrderDetails = await _repo.FindOrderDetailAsync(name, page, pageSize);
-
-                if (OrderDetails == null || !OrderDetails.Items.Any())
-                {
-                    return NotFound("Không tìm thấy chi tiết đơn hàng."); // Thông báo nếu không có kết quả
-                }
-
-                return Ok(OrderDetails);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Lỗi hệ thống: " + ex.Message); // Xử lý lỗi hệ thống
-            }
-        }
-
     }
 }
 
