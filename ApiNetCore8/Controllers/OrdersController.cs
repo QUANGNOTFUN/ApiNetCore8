@@ -48,24 +48,24 @@ namespace ApiNetCore8.Controllers
         }
 
         // GET: api/Orders/5
-        [HttpGet("find-Order")]
-        //[Authorize]
-        public async Task<ActionResult<OrderModel>> GetOrderById(int id)
+        [HttpGet("find-OrdersByDate")]
+        public async Task<ActionResult<IEnumerable<OrderModel>>> GetOrdersByDate([FromQuery] DateTime date)
         {
             try
             {
-                var Order = await _repo.GetOrderByIdAsync(id);
-                if (Order == null)
+                var orders = await _repo.GetOrdersByDateAsync(date);
+                if (orders == null || !orders.Any())
                 {
-                    return NotFound(); // Trả về 404 nếu không tìm thấy danh mục
+                    return NotFound("Không tìm thấy đơn hàng vào ngày này.");
                 }
-                return Ok(Order);
+                return Ok(orders);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
+
 
 
         // POST: api/Orders

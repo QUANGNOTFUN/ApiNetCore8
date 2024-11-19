@@ -11,5 +11,7 @@ namespace ApiNetCore8.Repositores
         public Task DeleteOrderAsync(int id);
         public Task<OrderModel> GetOrderByIdAsync(int id);
         public Task<PagedResult<OrderModel>> FindOrderAsync(string name, int page, int pageSize);
+        public Task<IEnumerable<OrderModel>> GetOrdersByDateAsync(DateTime date);
+
     }
 }

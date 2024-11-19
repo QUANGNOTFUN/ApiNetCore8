@@ -160,7 +160,40 @@
             return _mapper.Map<OrderModel>(order);
         }
 
-            public async Task UpdateOrderAsync(int id, OrderModel model)
+        public async Task<IEnumerable<OrderModel>> GetOrdersByDateAsync(DateTime date)
+        {
+            // Lọc đơn hàng theo ngày
+            var orders = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .Where(o => o.OrderDate.Date == date.Date) // So sánh chỉ ngày, bỏ phần thời gian
+                .ToListAsync();
+
+            // Ánh xạ từ Order sang OrderModel
+            var orderModels = orders.Select(order => new OrderModel
+            {
+                OrderId = order.OrderId,
+                OrderName = order.OrderName,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                OrderDetails = order.OrderDetails.Select(detail => new OrderDetailModel
+                {
+                    OrderDetailId = detail.OrderDetailId,
+                    OrderDetailName = detail.OrderDetailName,
+                    OrderId = detail.OrderId,
+                    ProductId = detail.ProductId,
+                    UnitPrice = detail.UnitPrice,
+                    Quantity = detail.Quantity
+                }).ToList()
+            });
+
+            return orderModels;
+        }
+
+    
+
+    public async Task UpdateOrderAsync(int id, OrderModel model)
             {
                 var Order = await _context.Orders.FindAsync(id);
                 if (Order == null)
@@ -232,4 +265,5 @@
         }
 
     }
+
 }
