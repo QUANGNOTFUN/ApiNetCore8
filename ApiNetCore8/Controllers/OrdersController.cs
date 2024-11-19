@@ -73,13 +73,12 @@ namespace ApiNetCore8.Controllers
         [HttpPost("add-order")]
         public async Task<IActionResult> AddOrder(string button, [FromBody] addOrderModel model)
         {
-            if (model == null)
+            if (model == null || !model.addOrderDetails.Any())
                 return BadRequest("Dữ liệu đơn hàng không hợp lệ.");
 
             try
             {
                 var newOrderId = await _repo.AddOrderAsync(button, model);
-
                 return Ok(new { Message = "Đơn hàng đã được thêm.", OrderId = newOrderId });
             }
             catch (Exception ex)
@@ -87,6 +86,7 @@ namespace ApiNetCore8.Controllers
                 return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
+
 
         [HttpPut("update-order-status/{orderId}")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string action)
