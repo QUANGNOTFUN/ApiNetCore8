@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiNetCore8.Migrations
 {
     [DbContext(typeof(InventoryContext))]
-    [Migration("20241117163639_dbint2")]
-    partial class dbint2
+    [Migration("20241119081358_addTotalPriceOrder")]
+    partial class addTotalPriceOrder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,6 +142,9 @@ namespace ApiNetCore8.Migrations
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderId");
 
