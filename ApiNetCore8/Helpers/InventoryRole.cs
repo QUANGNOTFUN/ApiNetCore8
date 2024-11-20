@@ -3,7 +3,7 @@
     public class InventoryRole
     {
         public const string Admin = "Administrator";
-        public const string Manager = "Maneger";
+        public const string Manager = "Manager";
         public const string Staff = "Staff";
     }
 }

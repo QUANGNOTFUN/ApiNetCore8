@@ -88,7 +88,7 @@ namespace ApiNetCore8.Repositores
 
                     await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
                 } 
-                else if (model.Role == "maneger") // Kiểm tra role Maneger
+                else if (model.Role == "manager") // Kiểm tra role Maneger
                 {
                     if (!await roleManager.RoleExistsAsync(InventoryRole.Manager))
                     {

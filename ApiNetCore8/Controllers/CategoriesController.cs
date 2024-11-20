@@ -24,7 +24,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories/all-category?page={page}&pageSize={pageSize}
         [HttpGet("all-category")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CategoryModel>>> GetAllCategories(int page = 1, int pageSize = 20)
         {
             try
