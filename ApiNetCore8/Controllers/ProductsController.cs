@@ -104,7 +104,7 @@ namespace ApiNetCore8.Controllers
         // POST: api/Products/add-product?model={formbody}
         [HttpPost("add-product")]
         //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<InputProductModel>> AddProduct(InputProductModel model)
+        public async Task<ActionResult<ProductModel>> AddProduct(InputProductModel model)
         {
             // Xác thực model
             if (!ModelState.IsValid)

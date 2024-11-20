@@ -15,7 +15,7 @@ namespace ApiNetCore8.Models
         public int SupplierId { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } 
-        public List<int> OrderDetailsId { get; set; } = new List<int>();
+        public List<OrderDetailModel> OrderDetails { get; set; } = new List<OrderDetailModel>();
     }
     public class addOrderModel
     {

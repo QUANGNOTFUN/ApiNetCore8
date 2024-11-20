@@ -126,36 +126,49 @@
                 };
             }
 
-            public async Task<PagedResult<OrderModel>> GetAllOrderAsync(int page, int pageSize)
-            {
-                var totalOrder = await _context.Orders.CountAsync(); // Đếm tổng số danh mục
-                var Orders = await _context.Orders
-                .Include(o => o.OrderDetails)
-                    .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
-                    .Take(pageSize) // Lấy số danh mục trong trang hiện tại
-                    .ToListAsync();
+        public async Task<PagedResult<OrderModel>> GetAllOrderAsync(int page, int pageSize)
+        {
+            // Đếm tổng số đơn hàng
+            var totalOrder = await _context.Orders.CountAsync();
 
-            var orderModels = Orders.Select(order => new OrderModel
+            // Lấy danh sách đơn hàng phân trang
+            var orders = await _context.Orders
+                .Include(o => o.OrderDetails) // Include chi tiết đơn hàng
+                .Skip((page - 1) * pageSize) // Bỏ qua các mục ở trang trước
+                .Take(pageSize) // Lấy số mục trong trang hiện tại
+                .ToListAsync();
+
+            // Map dữ liệu từ entity sang model
+            var orderModels = orders.Select(order => new OrderModel
             {
                 OrderId = order.OrderId,
                 OrderName = order.OrderName,
-                OrderDate = order.OrderDate,       
+                OrderDate = order.OrderDate,
                 SupplierId = order.SupplierId,
                 TotalPrice = order.TotalPrice,
                 Status = order.Status,
-                OrderDetailsId = order.OrderDetails.Select(orDT => orDT.OrderDetailId).ToList() ?? new List<int>()
+                OrderDetails = order.OrderDetails.Select(orDT => new OrderDetailModel
+                {
+                    OrderDetailId = orDT.OrderDetailId,
+                    OrderDetailName = orDT.OrderDetailName,
+                    ProductId = orDT.ProductId,
+                    Quantity = orDT.Quantity,
+                    UnitPrice = orDT.UnitPrice,
+                }).ToList() // Nếu không có chi tiết, trả về danh sách rỗng
             }).ToList();
 
+            // Trả về kết quả phân trang
             return new PagedResult<OrderModel>
-                {
-                    Items = orderModels,
-                    TotalCount = totalOrder,
-                    PageSize = pageSize,
-                    CurrentPage = page
-                };
-            }
+            {
+                Items = orderModels,
+                TotalCount = totalOrder,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
+        }
 
-            public async Task<OrderModel> GetOrderByIdAsync(int id)
+
+        public async Task<OrderModel> GetOrderByIdAsync(int id)
             {
             var order = await _context.Orders
             .Include(o => o.OrderDetails)      
@@ -175,7 +188,14 @@
                 SupplierId = order.SupplierId,
                 TotalPrice = order.TotalPrice,
                 Status = order.Status,
-                OrderDetailsId = order.OrderDetails.Select(orDT => orDT.OrderDetailId).ToList() ?? new List<int>()
+                OrderDetails = order.OrderDetails.Select(orDT => new OrderDetailModel
+                {
+                    OrderDetailId = orDT.OrderDetailId,
+                    OrderDetailName = orDT.OrderDetailName,
+                    ProductId = orDT.ProductId,
+                    Quantity = orDT.Quantity,
+                    UnitPrice = orDT.UnitPrice,
+                }).ToList() // Nếu không có chi tiết, trả về danh sách rỗng
             };
 
             return orderModel;
