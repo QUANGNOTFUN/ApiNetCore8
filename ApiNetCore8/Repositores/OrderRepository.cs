@@ -243,8 +243,6 @@
             // Nếu xác nhận đơn hàng, xử lý tồn kho và tính toán tổng giá trị đơn hàng
             if (action == "confirm" && status == "Successful")
             {
-                int totalPrice = 0;
-
                 foreach (var detail in order.OrderDetails)
                 {
                     var product = detail.Product;
@@ -268,19 +266,12 @@
                         }
                         product.StockQuantity -= detail.Quantity;
                     }
-
-                    // Tính tổng giá trị của đơn hàng
-                    totalPrice += (int)(detail.UnitPrice * detail.Quantity);
                 }
-
-                // Cập nhật tổng giá trị vào đơn hàng
-                order.TotalPrice = totalPrice;
             }
 
             // Lưu thay đổi
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
-
     }
 }
