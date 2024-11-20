@@ -25,7 +25,6 @@
             var newOrder = new Order
             {
                 OrderDate = DateTime.Now,
-                SupplierId = model.SupplierId,
                 OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
                 Status = "Pending",
                 TotalPrice = 0,
@@ -61,6 +60,7 @@
                         OrderDetailName = product.ProductName,
                         ProductId = detail.ProductId,
                         Quantity = detail.Quantity,
+                        SupplierId = detail.SupplierId,
                         UnitPrice = unitPrice,
                         OrderId = newOrder.OrderId
                     };
@@ -144,14 +144,13 @@
                 OrderId = order.OrderId,
                 OrderName = order.OrderName,
                 OrderDate = order.OrderDate,
-                SupplierId = order.SupplierId,
                 TotalPrice = order.TotalPrice,
                 Status = order.Status,
                 OrderDetails = order.OrderDetails.Select(orDT => new OrderDetailModel
                 {
                     OrderDetailId = orDT.OrderDetailId,
                     OrderDetailName = orDT.OrderDetailName,
-                    ProductId = orDT.ProductId,
+                    SupplierId = orDT.SupplierId,
                     Quantity = orDT.Quantity,
                     UnitPrice = orDT.UnitPrice,
                 }).ToList() // Nếu không có chi tiết, trả về danh sách rỗng
@@ -169,9 +168,9 @@
 
 
         public async Task<OrderModel> GetOrderByIdAsync(int id)
-            {
+        {
             var order = await _context.Orders
-            .Include(o => o.OrderDetails)      
+            .Include(o => o.OrderDetails)
             .ThenInclude(od => od.Product)
             .SingleOrDefaultAsync(o => o.OrderId == id);
 
@@ -185,14 +184,13 @@
                 OrderId = order.OrderId,
                 OrderName = order.OrderName,
                 OrderDate = order.OrderDate,
-                SupplierId = order.SupplierId,
                 TotalPrice = order.TotalPrice,
                 Status = order.Status,
                 OrderDetails = order.OrderDetails.Select(orDT => new OrderDetailModel
                 {
                     OrderDetailId = orDT.OrderDetailId,
                     OrderDetailName = orDT.OrderDetailName,
-                    ProductId = orDT.ProductId,
+                    SupplierId = orDT.SupplierId,
                     Quantity = orDT.Quantity,
                     UnitPrice = orDT.UnitPrice,
                 }).ToList() // Nếu không có chi tiết, trả về danh sách rỗng

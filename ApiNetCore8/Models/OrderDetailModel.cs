@@ -15,14 +15,19 @@ namespace ApiNetCore8.Models
         [JsonIgnore]
         public int ProductId { get; set; }
 
+        public int SupplierId { get; set; }
+
         public int Quantity { get; set; }
 
         public decimal UnitPrice { get; set; }
     }
     public class addOrderDetailModel
     {
-        [ForeignKey("Product")]
+        [Required]
         public int ProductId { get; set; }
+
+        [Required]
+        public int SupplierId { get; set; }
 
         [Required]
         public int Quantity { get; set; }
