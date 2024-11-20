@@ -27,7 +27,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Orders
         [HttpGet("all-Orders")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<OrderModel>>> GetAllOrders(int page = 1, int pageSize = 20)
         {
             try
@@ -49,6 +49,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Orders/5
         [HttpGet("find-OrdersByDate")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<OrderModel>>> GetOrdersByDate([FromQuery] DateTime date)
         {
             try
@@ -71,6 +72,7 @@ namespace ApiNetCore8.Controllers
         // POST: api/Orders
         // API Thêm đơn hàng
         [HttpPost("add-order")]
+        [Authorize]
         public async Task<IActionResult> AddOrder(string button, [FromBody] addOrderModel model)
         {
             if (model == null || !model.addOrderDetails.Any())
@@ -89,6 +91,7 @@ namespace ApiNetCore8.Controllers
 
 
         [HttpPut("update-order-status")]
+        [Authorize]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string action)
         {
             try
