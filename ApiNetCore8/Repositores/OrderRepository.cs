@@ -33,6 +33,11 @@
 
             decimal totalPrice = 0; // Tổng giá trị đơn hàng
 
+            if (model.addOrderDetails == null || !model.addOrderDetails.Any())
+            {
+                throw new InvalidOperationException("Danh sách chi tiết đơn hàng không được để trống.");
+            }
+
             // Thêm chi tiết đơn hàng
             if (model.addOrderDetails != null && model.addOrderDetails.Any())
             {
@@ -47,13 +52,18 @@
                     }
 
                     // Tính giá đơn vị dựa vào loại đơn hàng
-                    decimal unitPrice = (button == "Đặt hàng")
-                        ? product.CostPrice * detail.Quantity
-                        : product.SellPrice * detail.Quantity;
-                    if (unitPrice == 0)
+                    decimal unitPrice = button switch
                     {
-                        throw new InvalidOperationException("Tổng đơn giá chi tiết = 0");
+                        "Đặt hàng" => product.CostPrice * detail.Quantity,
+                        "Xuất hàng" => product.SellPrice * detail.Quantity,
+                        _ => throw new InvalidOperationException("Loại đơn hàng không hợp lệ.")
+                    };
+
+                    if (unitPrice <= 0)
+                    {
+                        throw new InvalidOperationException($"Đơn giá không hợp lệ cho sản phẩm ID {detail.ProductId}.");
                     }
+
                     // Thêm chi tiết đơn hàng
                     var newDetail = new OrderDetail
                     {
@@ -72,10 +82,15 @@
                     // Cộng vào tổng giá trị của đơn hàng
                     totalPrice += unitPrice;
                 }
-            }
+            } 
 
             // Cập nhật tổng giá trị vào đơn hàng
             newOrder.TotalPrice = totalPrice;
+
+            if (newOrder == null)
+            {
+                throw new InvalidOperationException("không có");
+            }
 
             // Lưu đơn hàng và chi tiết vào cơ sở dữ liệu
             await _context.Orders.AddAsync(newOrder);
@@ -83,9 +98,6 @@
 
             return newOrder.OrderId;
         }
-
-
-
 
         public async Task DeleteOrderAsync(int id)
             {

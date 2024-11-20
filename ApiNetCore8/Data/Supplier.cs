@@ -19,6 +19,5 @@ namespace ApiNetCore8.Data
         public required string ContactInfo { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }
-        public virtual ICollection<Order> Orders { get; set; }
     }
 }
