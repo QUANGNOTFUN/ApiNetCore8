@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ApiNetCore8.Models;
 using ApiNetCore8.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiNetCore8.Controllers
 {
@@ -21,6 +22,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Suppliers/all-Supplier?page={page}&pageSize={pageSize}
         [HttpGet("all-Supplier")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<SupplierModel>>> GetAllSuppliers(int page = 1, int pageSize = 20)
         {
             try
@@ -42,6 +44,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Suppliers/find-Supplier?id={id}
         [HttpGet("find-Supplier")]
+        [Authorize]
         public async Task<ActionResult<SupplierModel>> FindSupplier(string name, int page = 1, int pageSize = 20)
         {
             try
@@ -63,6 +66,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Suppliers/add-Supplier
         [HttpPost("add-Supplier")]
+        [Authorize]
         public async Task<ActionResult<SupplierModel>> AddSupplier(SupplierModel model)
         {
             if (model == null)
@@ -94,6 +98,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Suppliers/update-Supplier?id={id}
         [HttpPut("update-Supplier")]
+        [Authorize]
         public async Task<ActionResult> UpdateSupplier(int id, SupplierModel model)
         {
             if (model == null)
@@ -120,6 +125,7 @@ namespace ApiNetCore8.Controllers
 
         // DELETE: api/Suppliers/delete-Supplier?id={id}
         [HttpDelete("delete-Supplier")]
+        [Authorize]
         public async Task<ActionResult> DeleteSupplier(int id)
         {
             try

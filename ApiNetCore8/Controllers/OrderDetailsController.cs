@@ -23,7 +23,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/OrderDetails
         [HttpGet("all-OrderDetails")]
-        ////[Authorize]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<OrderDetailModel>>> GetAllOrderDetails(int page = 1, int pageSize = 20)
         {
             try
@@ -45,7 +45,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/OrderDetails/5
         [HttpGet("Get-OrderDetail")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<OrderDetailModel>> GetOrderDetailById(int id)
         {
             try

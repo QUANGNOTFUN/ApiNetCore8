@@ -1,5 +1,6 @@
 ﻿using ApiNetCore8.Models;
 using ApiNetCore8.Repositores;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ namespace ApiNetCore8.Controllers
         }
 
         [HttpGet("get-dashboard-in-day")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<DashBoardModel>>> GetDashBoardInDay()
         {
             try
@@ -37,6 +39,7 @@ namespace ApiNetCore8.Controllers
         }
 
         [HttpGet("get-dashboard-all")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<DashBoardModel>>> GetDashBoardAll()
         {
             try
@@ -56,6 +59,7 @@ namespace ApiNetCore8.Controllers
             }
         }
         [HttpGet("summary")]
+        [Authorize]
         public async Task<IActionResult> GetSummary()
         {
             try

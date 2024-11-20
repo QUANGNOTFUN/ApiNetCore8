@@ -46,7 +46,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Categories/find-category?name={name}
         [HttpGet("find-category")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         public async Task<ActionResult<List<CategoryModel>>> FindCategory(string name, int page = 1, int pageSize = 20)
         {
             try
@@ -70,7 +70,7 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Categories/add-category?model={formbody}
         [HttpPost("add-category")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         public async Task<ActionResult<CategoryModel>> AddCategory(CategoryModel model)
         {
             if (model == null)
@@ -102,7 +102,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Categories/update-category?id={id}&model={formbody}
         [HttpPut("update-category")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         public async Task<ActionResult> UpdateCategory(int id, CategoryUpdateModel model)
         {
             if (model == null) // Kiểm tra nếu model là null
@@ -130,7 +130,7 @@ namespace ApiNetCore8.Controllers
 
         // DELETE: api/Categories/deleete-category?id={id}
         [HttpDelete("delete-category")]
-        //[Authorize(Roles = InventoryRole.Admin)]
+        [Authorize]
         public async Task<ActionResult> DeleteCategory(int id)
         {
             try
