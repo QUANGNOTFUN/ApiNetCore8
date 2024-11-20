@@ -25,7 +25,6 @@
             var newOrder = new Order
             {
                 OrderDate = DateTime.Now,
-                SupplierId = model.SupplierId,
                 OrderName = button == "Đặt hàng" ? "Đơn đặt hàng" : "Đơn xuất hàng",
                 Status = "Pending",
                 TotalPrice = 0,
@@ -33,6 +32,11 @@
             };
 
             decimal totalPrice = 0; // Tổng giá trị đơn hàng
+
+            if (model.addOrderDetails == null || !model.addOrderDetails.Any())
+            {
+                throw new InvalidOperationException("Danh sách chi tiết đơn hàng không được để trống.");
+            }
 
             // Thêm chi tiết đơn hàng
             if (model.addOrderDetails != null && model.addOrderDetails.Any())
@@ -48,19 +52,25 @@
                     }
 
                     // Tính giá đơn vị dựa vào loại đơn hàng
-                    decimal unitPrice = (button == "Đặt hàng")
-                        ? product.CostPrice * detail.Quantity
-                        : product.SellPrice * detail.Quantity;
-                    if (unitPrice == 0)
+                    decimal unitPrice = button switch
                     {
-                        throw new InvalidOperationException("Tổng đơn giá chi tiết = 0");
+                        "Đặt hàng" => product.CostPrice * detail.Quantity,
+                        "Xuất hàng" => product.SellPrice * detail.Quantity,
+                        _ => throw new InvalidOperationException("Loại đơn hàng không hợp lệ.")
+                    };
+
+                    if (unitPrice <= 0)
+                    {
+                        throw new InvalidOperationException($"Đơn giá không hợp lệ cho sản phẩm ID {detail.ProductId}.");
                     }
+
                     // Thêm chi tiết đơn hàng
                     var newDetail = new OrderDetail
                     {
                         OrderDetailName = product.ProductName,
                         ProductId = detail.ProductId,
                         Quantity = detail.Quantity,
+                        SupplierId = detail.SupplierId,
                         UnitPrice = unitPrice,
                         OrderId = newOrder.OrderId
                     };
@@ -72,10 +82,15 @@
                     // Cộng vào tổng giá trị của đơn hàng
                     totalPrice += unitPrice;
                 }
-            }
+            } 
 
             // Cập nhật tổng giá trị vào đơn hàng
             newOrder.TotalPrice = totalPrice;
+
+            if (newOrder == null)
+            {
+                throw new InvalidOperationException("không có");
+            }
 
             // Lưu đơn hàng và chi tiết vào cơ sở dữ liệu
             await _context.Orders.AddAsync(newOrder);
@@ -83,9 +98,6 @@
 
             return newOrder.OrderId;
         }
-
-
-
 
         public async Task DeleteOrderAsync(int id)
             {
@@ -126,29 +138,51 @@
                 };
             }
 
-            public async Task<PagedResult<OrderModel>> GetAllOrderAsync(int page, int pageSize)
+        public async Task<PagedResult<OrderModel>> GetAllOrderAsync(int page, int pageSize)
+        {
+            // Đếm tổng số đơn hàng
+            var totalOrder = await _context.Orders.CountAsync();
+
+            // Lấy danh sách đơn hàng phân trang
+            var orders = await _context.Orders
+                .Include(o => o.OrderDetails) // Include chi tiết đơn hàng
+                .Skip((page - 1) * pageSize) // Bỏ qua các mục ở trang trước
+                .Take(pageSize) // Lấy số mục trong trang hiện tại
+                .ToListAsync();
+
+            // Map dữ liệu từ entity sang model
+            var orderModels = orders.Select(order => new OrderModel
             {
-                var totalOrder = await _context.Orders.CountAsync(); // Đếm tổng số danh mục
-                var Orders = await _context.Orders
-                    .Skip((page - 1) * pageSize) // Bỏ qua các danh mục ở các trang trước
-                    .Take(pageSize) // Lấy số danh mục trong trang hiện tại
-                    .ToListAsync();
-
-                var orderModels = _mapper.Map<List<OrderModel>>(Orders);
-
-                return new PagedResult<OrderModel>
+                OrderId = order.OrderId,
+                OrderName = order.OrderName,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                OrderDetails = order.OrderDetails.Select(orDT => new OrderDetailModel
                 {
-                    Items = orderModels,
-                    TotalCount = totalOrder,
-                    PageSize = pageSize,
-                    CurrentPage = page
-                };
-            }
+                    OrderDetailId = orDT.OrderDetailId,
+                    OrderDetailName = orDT.OrderDetailName,
+                    SupplierId = orDT.SupplierId,
+                    Quantity = orDT.Quantity,
+                    UnitPrice = orDT.UnitPrice,
+                }).ToList() // Nếu không có chi tiết, trả về danh sách rỗng
+            }).ToList();
 
-            public async Task<OrderModel> GetOrderByIdAsync(int id)
+            // Trả về kết quả phân trang
+            return new PagedResult<OrderModel>
             {
+                Items = orderModels,
+                TotalCount = totalOrder,
+                PageSize = pageSize,
+                CurrentPage = page
+            };
+        }
+
+
+        public async Task<OrderModel> GetOrderByIdAsync(int id)
+        {
             var order = await _context.Orders
-            .Include(o => o.OrderDetails)      
+            .Include(o => o.OrderDetails)
             .ThenInclude(od => od.Product)
             .SingleOrDefaultAsync(o => o.OrderId == id);
 
@@ -157,7 +191,24 @@
                 throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
             }
 
-            return _mapper.Map<OrderModel>(order);
+            var orderModel = new OrderModel
+            {
+                OrderId = order.OrderId,
+                OrderName = order.OrderName,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                OrderDetails = order.OrderDetails.Select(orDT => new OrderDetailModel
+                {
+                    OrderDetailId = orDT.OrderDetailId,
+                    OrderDetailName = orDT.OrderDetailName,
+                    SupplierId = orDT.SupplierId,
+                    Quantity = orDT.Quantity,
+                    UnitPrice = orDT.UnitPrice,
+                }).ToList() // Nếu không có chi tiết, trả về danh sách rỗng
+            };
+
+            return orderModel;
         }
 
         public async Task<IEnumerable<OrderModel>> GetOrdersByDateAsync(DateTime date)
@@ -225,8 +276,6 @@
             // Nếu xác nhận đơn hàng, xử lý tồn kho và tính toán tổng giá trị đơn hàng
             if (action == "confirm" && status == "Successful")
             {
-                int totalPrice = 0;
-
                 foreach (var detail in order.OrderDetails)
                 {
                     var product = detail.Product;
@@ -250,20 +299,13 @@
                         }
                         product.StockQuantity -= detail.Quantity;
                     }
-
-                    // Tính tổng giá trị của đơn hàng
-                    totalPrice += (int)(detail.UnitPrice * detail.Quantity);
                 }
-
-                // Cập nhật tổng giá trị vào đơn hàng
-                order.TotalPrice = totalPrice;
             }
 
             // Lưu thay đổi
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
-
     }
 
 }

@@ -77,17 +77,62 @@ namespace ApiNetCore8.Repositores
             var result = await UserManager.CreateAsync(user,model.Password);
 
             if (result.Succeeded) 
-            { 
+            {
                 // Kiểm tra role Staff
-                if(!await roleManager.RoleExistsAsync(InventoryRole.Staff))
+                if (model.Role == "staff")
                 {
-                    await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
-                }
+                    if (!await roleManager.RoleExistsAsync(InventoryRole.Staff))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Staff));
+                    }
 
-                await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
+                    await UserManager.AddToRoleAsync(user, InventoryRole.Staff);
+                } 
+                else if (model.Role == "manager") // Kiểm tra role Maneger
+                {
+                    if (!await roleManager.RoleExistsAsync(InventoryRole.Manager))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Manager));
+                    }
+
+                    await UserManager.AddToRoleAsync(user, InventoryRole.Manager);
+                } 
+                else if (model.Role == "admin") // Kiểm tra role Admin
+                {
+                    if (!await roleManager.RoleExistsAsync(InventoryRole.Admin))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(InventoryRole.Admin));
+                    }
+
+                    await UserManager.AddToRoleAsync(user, InventoryRole.Admin);
+                }
             }
+                
 
             return result;
         }
+
+        // lấy thông tin user đăng nhập
+        public async Task<ApplicationUser> GetLoggedInUserAsync(ClaimsPrincipal userPrincipal)
+        {
+            if (userPrincipal == null)
+            {
+                return null;
+            }
+
+            // Lấy email từ ClaimsPrincipal
+            var email = userPrincipal.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return null;
+            }
+
+            // Tìm thông tin người dùng từ UserManager
+            var user = await UserManager.FindByEmailAsync(email);
+
+            return user;
+        }
+
     }
 }

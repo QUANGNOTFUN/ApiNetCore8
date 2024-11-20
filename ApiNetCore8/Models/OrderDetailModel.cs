@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ApiNetCore8.Models
 {
@@ -7,23 +8,26 @@ namespace ApiNetCore8.Models
     {
         public int OrderDetailId { get; set; }
         public string OrderDetailName { get; set; }
-        [ForeignKey("Order")]
+
+        [JsonIgnore]
         public int OrderId { get; set; }
 
-        [ForeignKey("Product")]
+        [JsonIgnore]
         public int ProductId { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal UnitPrice { get; set; }
+        public int SupplierId { get; set; }
 
-        [Required]
         public int Quantity { get; set; }
+
+        public decimal UnitPrice { get; set; }
     }
     public class addOrderDetailModel
     {
-        [ForeignKey("Product")]
+        [Required]
         public int ProductId { get; set; }
+
+        [Required]
+        public int SupplierId { get; set; }
 
         [Required]
         public int Quantity { get; set; }

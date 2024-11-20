@@ -16,6 +16,8 @@ namespace ApiNetCore8.Data
         [ForeignKey("Product")]
         public int ProductId { get; set; }
 
+        public int SupplierId { get; set; }
+
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal UnitPrice { get; set; }

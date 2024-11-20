@@ -20,6 +20,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Products/all-product
         [HttpGet("all-product")]
+        [Authorize]
         public async Task<ActionResult<PagedResult<ProductModel>>> GetAllProducts(int page = 1, int pageSize = 20)
         {
             try
@@ -40,12 +41,12 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/Products/low-stock?page={page}&pageSize={pageSize}
         [HttpGet("low-stock")]
-        // [Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<IEnumerable<ProductModel>>> GetLowStockProducts(int page = 1, int pageSize = 20)
+         [Authorize]
+        public async Task<ActionResult<IEnumerable<LowProductModel>>> GetLowStockProducts(int page = 1, int pageSize = 20)
         {
             try
             {
-                var products = await _repo.GetLowStockProductsAsync(page, pageSize = 20);
+                var products = await _repo.GetLowStockProductsAsync(page, pageSize);
                 if (products == null || !products.Items.Any())
                 {
                     return NotFound("Không có sản phẩm đang thiếu!");
@@ -60,7 +61,7 @@ namespace ApiNetCore8.Controllers
 
         // GET: api/products/find-product?name={name}
         [HttpGet("find-product")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         public async Task<ActionResult<List<ProductModel>>> FindProduct(string name, int page = 1, int pageSize = 20)
         {
             try
@@ -83,7 +84,7 @@ namespace ApiNetCore8.Controllers
 
         // Lấy sản phẩm theo ID
         //[HttpGet("product{id}")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         //public async Task<ActionResult<ProductModel>> GetProductById(int id)
         //{
         //    try
@@ -103,8 +104,8 @@ namespace ApiNetCore8.Controllers
 
         // POST: api/Products/add-product?model={formbody}
         [HttpPost("add-product")]
-        //[Authorize(Roles = InventoryRole.Staff)]
-        public async Task<ActionResult<InputProductModel>> AddProduct(InputProductModel model)
+        [Authorize]
+        public async Task<ActionResult<ProductModel>> AddProduct(InputProductModel model)
         {
             // Xác thực model
             if (!ModelState.IsValid)
@@ -128,7 +129,7 @@ namespace ApiNetCore8.Controllers
 
         // PUT: api/Products/update-product?id={id}&model={formbody}
         [HttpPut("update-product")]
-        //[Authorize(Roles = InventoryRole.Staff)]
+        [Authorize]
         public async Task<ActionResult> UpdateProduct(int id, InputProductModel model)
         {
             if (model == null)

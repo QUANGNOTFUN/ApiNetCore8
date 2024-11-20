@@ -85,22 +85,38 @@ namespace ApiNetCore8.Repositores
             };
         }
 
-        public async Task<PagedResult<ProductModel>> GetLowStockProductsAsync(int page, int pageSize)
+        public async Task<PagedResult<LowProductModel>> GetLowStockProductsAsync(int page, int pageSize)
         {
-            // Lấy danh sách sản phẩm có mức tồn kho dưới mức cần nhập
+            // Đếm tổng số sản phẩm tồn kho thấp
             var totalLowStockProducts = await _context.Products
                 .Where(p => p.ReorderLevel > p.StockQuantity)
-                .CountAsync(); // Đếm tổng số sản phẩm có tồn kho thấp
+                .CountAsync();
 
+            // Truy vấn sản phẩm tồn kho thấp kèm thông tin danh mục và nhà cung cấp
             var lowStockProducts = await _context.Products
-                .Where(p => p.ReorderLevel > p.StockQuantity) // Điều kiện sản phẩm có tồn kho thấp
-                .Skip((page - 1) * pageSize) // Bỏ qua các sản phẩm ở các trang trước
-                .Take(pageSize) // Lấy số sản phẩm trong trang hiện tại
+                .Include(p => p.Category) // Bao gồm danh mục
+                .ThenInclude(c => c.Suppliers) // Bao gồm nhà cung cấp
+                .Where(p => p.ReorderLevel > p.StockQuantity)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            var lowStockProductModels = _mapper.Map<List<ProductModel>>(lowStockProducts);
+            // Tạo danh sách sản phẩm tồn kho thấp
+            var lowStockProductModels = lowStockProducts.Select(product => new LowProductModel
+            {
+                ProductID = product.ProductID,
+                ProductName = product.ProductName,
+                Description = product.Description,
+                CostPrice = product.CostPrice,
+                SellPrice = product.SellPrice,
+                StockQuantity = product.StockQuantity,
+                ReorderLevel = product.ReorderLevel,
+                CategoryID = product.Category?.CategoryId ?? 0,
+                SupplierIds = product.Category?.Suppliers.Select(s => s.SupplierId).ToList() ?? new List<int>()
+            }).ToList();
 
-            return new PagedResult<ProductModel>
+            // Trả về kết quả phân trang
+            return new PagedResult<LowProductModel>
             {
                 Items = lowStockProductModels,
                 TotalCount = totalLowStockProducts,
