@@ -1,0 +1,111 @@
+<div class="container-scroller">
+    <app-sidebar></app-sidebar>
+
+    <div class="container-fluid page-body-wrapper">
+        <app-settings-panel></app-settings-panel>
+        <app-navbar></app-navbar>
+        <div class="main-panel">
+            <div class="content-wrapper pb-0">
+                <div class="row">
+                    <div class="col-sm-12 stretch-card grid-margin">
+                        <div class="card">
+                            <div class="category-container">
+                                <h1>Danh sách danh mục</h1>
+
+                                <div class="search-bar">
+                                    <input type="text" [(ngModel)]="searchTerm" placeholder="Tìm kiếm danh mục..." />
+                                    <button (click)="searchCategories()" class="search-button">Tìm kiếm</button>
+                                    <button (click)="toggleAddCategoryForm()" class="add-category-button">Thêm danh
+                                        mục</button>
+                                </div>
+
+                                <div *ngIf="showAddCategoryForm" class="add-category-form">
+                                    <h3>{{ editingCategoryId ? 'Cập nhật danh mục' : 'Thêm danh mục mới' }}</h3>
+                                    <input type="text" [(ngModel)]="newCategoryName" placeholder="Tên danh mục" />
+                                    <textarea [(ngModel)]="newCategoryDescription"
+                                        placeholder="Mô tả danh mục"></textarea>
+                                    <input id="supplierSearchInput" type="text" [(ngModel)]="supplierSearchTerm"
+                                        (keyup.enter)="searchSuppliers()"
+                                        placeholder="Tìm kiếm: Nhập tên nhà cung cấp và nhấn Enter" />
+                                    <div class="supplier-select-container">
+                                        <label for="supplierSelect">Chọn nhà cung cấp:</label>
+                                        <select id="supplierSelect" multiple [(ngModel)]="selectedSuppliers">
+                                            <option *ngFor="let supplier of suppliers" [value]="supplier.supplierId">
+                                                {{ supplier.supplierName }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button *ngIf="!editingCategoryId" (click)="addCategory()">Thêm mới</button>
+                                        <button *ngIf="editingCategoryId" (click)="updateCategory()">Cập nhật</button>
+                                        <button (click)="resetForm()">Hủy</button>
+                                    </div>
+                                </div>
+
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Tên danh mục</th>
+                                            <th>Mô tả</th>
+                                            <th>Nhà cung cấp</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let category of categories">
+                                            <td>{{ category.categoryId }}</td>
+                                            <td>{{ category.categoryName }}</td>
+                                            <td>{{ category.description }}</td>
+                                            <td>
+                                                <ul>
+                                                    <li *ngFor="let supplier of category.supplier">
+                                                        {{ supplier.supplierName }}
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <button (click)="editCategory(category)">
+                                                    <i class="mdi mdi-pencil"></i>
+                                                </button>
+                                                <button (click)="deleteCategory(category.categoryId)"
+                                                    class="delete-button">
+                                                    <i class="mdi mdi-delete"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="pagination-container">
+                                    <div class="pagination-options">
+                                        <label for="pageSizeSelect">Hiển thị mỗi trang:</label>
+                                        <select id="pageSizeSelect" [(ngModel)]="pageSize"
+                                            (change)="onPageSizeChange(pageSize)">
+                                            <option *ngFor="let option of pageSizeOptions" [value]="option">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="pagination-buttons">
+                                        <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+                                            class="pagination-btn">
+                                            «
+                                        </button>
+                                        <span class="pagination-info">Trang {{ currentPage }} / {{ getTotalPages()
+                                            }}</span>
+                                        <button (click)="onPageChange(currentPage + 1)"
+                                            [disabled]="currentPage === getTotalPages()" class="pagination-btn">
+                                            »
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-footer></app-footer>
+        </div>
+    </div>
+</div>

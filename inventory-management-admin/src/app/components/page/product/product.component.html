@@ -1,0 +1,143 @@
+<div class="container-scroller">
+    <app-sidebar></app-sidebar>
+
+    <div class="container-fluid page-body-wrapper">
+        <app-settings-panel></app-settings-panel>
+        <app-navbar></app-navbar>
+        <div class="main-panel">
+            <div class="content-wrapper pb-0">
+                <div class="row">
+                    <div class="col-sm-12 stretch-card grid-margin">
+                        <div class="card">
+                            <div class="product-container">
+                                <h1>Danh sách sản phẩm</h1>
+
+                                <!-- Thanh tìm kiếm -->
+                                <div class="search-bar">
+                                    <input type="text" [(ngModel)]="searchTerm" placeholder="Tìm kiếm sản phẩm..." />
+                                    <button (click)="searchProducts()" class="search-button">Tìm kiếm</button>
+                                    <button (click)="toggleAddProductForm()" class="add-product-button">Thêm sản
+                                        phẩm</button>
+                                </div>
+
+                                <!-- Form thêm/cập nhật sản phẩm -->
+                                <div *ngIf="showAddProductForm" class="add-product-form">
+                                    <h3>{{ editingProductId ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới' }}</h3>
+
+                                    <div class="form-group">
+                                        <label for="productName">Tên sản phẩm</label>
+                                        <input id="productName" type="text" [(ngModel)]="newProductName"
+                                            placeholder="Nhập tên sản phẩm" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="productDescription">Mô tả sản phẩm</label>
+                                        <textarea id="productDescription" [(ngModel)]="newProductDescription"
+                                            placeholder="Nhập mô tả sản phẩm"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="costPrice">Giá nhập</label>
+                                        <input id="costPrice" type="number" [(ngModel)]="newCostPrice"
+                                            placeholder="Nhập giá nhập" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="sellPrice">Giá bán</label>
+                                        <input id="sellPrice" type="number" [(ngModel)]="newSellPrice"
+                                            placeholder="Nhập giá bán" />
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label for="stockQuantity">Số lượng tồn kho</label>
+                                        <input id="stockQuantity" type="number" [(ngModel)]="newStockQuantity"
+                                            placeholder="Nhập số lượng tồn kho" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="reorderLevel">Số lượng hạn mức</label>
+                                        <input id="reorderLevel" type="number" [(ngModel)]="newReorderLevel"
+                                            placeholder="Nhập reorder level" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="categoryID">Danh mục</label>
+                                        <select id="categoryID" [(ngModel)]="newCategoryID" class="form-control">
+                                            <option [value]="null" disabled>Chọn danh mục</option>
+                                            <option *ngFor="let category of categories" [value]="category.categoryId">
+                                                {{ category.categoryName }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button (click)="addOrUpdateProduct()">Lưu</button>
+                                        <button (click)="resetForm()">Hủy</button>
+                                    </div>
+                                </div>
+
+
+                                <!-- Bảng danh sách sản phẩm -->
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Tên sản phẩm</th>
+                                            <th>Mô tả</th>
+                                            <th>Giá nhập</th>
+                                            <th>Giá bán</th>
+                                            <th>Số lượng</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let product of products"
+                                            [ngClass]="{'highlight': product.reorderLevel > product.stockQuantity}">
+                                            <td>{{ product.productName }}</td>
+                                            <td>{{ product.description }}</td>
+                                            <td>{{ product.costPrice | currency: 'VND':'symbol':'1.0-0' }}</td>
+                                            <td>{{ product.sellPrice | currency: 'VND':'symbol':'1.0-0' }}</td>
+                                            <td>{{ product.stockQuantity }}</td>
+                                            <td>
+                                                <button (click)="editProduct(product)">
+                                                    <i class="mdi mdi-pencil"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <!-- Phân trang -->
+                                <div class="pagination-container">
+                                    <div class="pagination-options">
+                                        <label for="pageSizeSelect">Hiển thị mỗi trang:</label>
+                                        <select id="pageSizeSelect" [(ngModel)]="pageSize"
+                                            (change)="onPageSizeChange(pageSize)">
+                                            <option *ngFor="let option of pageSizeOptions" [value]="option">{{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="pagination-buttons">
+                                        <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+                                            class="pagination-btn">
+                                            «
+                                        </button>
+                                        <span class="pagination-info">Trang {{ currentPage }} / {{ getTotalPages()
+                                            }}</span>
+                                        <button (click)="onPageChange(currentPage + 1)"
+                                            [disabled]="currentPage === getTotalPages()" class="pagination-btn">
+                                            »
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-footer></app-footer>
+        </div>
+    </div>
+</div>

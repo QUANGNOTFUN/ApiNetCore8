@@ -1,0 +1,14 @@
+#settings-trigger {
+    cursor: pointer;
+    /* Thay đổi con trỏ chuột thành pointer */
+}
+
+#settings-trigger i {
+    font-size: 24px;
+    /* Đảm bảo biểu tượng có kích thước dễ nhìn */
+}
+
+#settings-trigger:hover {
+    color: #007bff;
+    /* Màu sắc thay đổi khi hover (tùy chọn) */
+}

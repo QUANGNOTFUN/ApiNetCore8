@@ -1,0 +1,117 @@
+<div class="container-scroller">
+    <app-sidebar></app-sidebar>
+
+    <div class="container-fluid page-body-wrapper">
+        <app-settings-panel></app-settings-panel>
+        <app-navbar></app-navbar>
+        <div class="main-panel">
+            <div class="content-wrapper pb-0">
+                <div class="row">
+                    <div class="col-sm-12 stretch-card grid-margin">
+                        <div class="card">
+
+                            <div class="orders-container">
+                                <h1>Thông tin đơn hàng</h1>
+
+                                <!-- Bộ lọc ngày -->
+                                <div class="filter-container">
+                                    <label for="dateFilter">Lọc theo ngày:</label>
+                                    <input id="dateFilter" type="date" [(ngModel)]="selectedDate" class="date-input" />
+                                    <button (click)="filterOrdersByDate()" class="filter-button">Lọc đơn hàng</button>
+                                </div>
+
+                                <!-- Bảng hiển thị thông tin đơn hàng -->
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Ngày tạo</th>
+                                            <th>Trạng thái</th>
+                                            <th>Tên sản phẩm</th>
+                                            <th>Nhà cung cấp</th>
+                                            <th>Số lượng</th>
+                                            <th>Giá theo SP</th>
+                                            <th>Tổng giá</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Lặp qua từng đơn hàng -->
+                                        <ng-container *ngFor="let order of orders">
+                                            <tr>
+                                                <td [attr.rowspan]="order.orderDetails.length">{{ order.orderDate |
+                                                    date: 'dd/MM/yyyy' }}</td>
+                                                <td [attr.rowspan]="order.orderDetails.length"
+                                                    [ngClass]="{'text-cancel': order.status === 'Cancel', 'text-successful': order.status === 'Successful'}">
+                                                    {{ order.status }}</td>
+                                                <td>{{ order.orderDetails[0]?.orderDetailName }}</td>
+                                                <td>{{ getSupplierName(order.orderDetails[0]?.supplierId) }}</td>
+                                                <td>{{ order.orderDetails[0]?.quantity }}</td>
+                                                <td>{{ order.orderDetails[0]?.unitPrice | currency:
+                                                    'VND':'symbol':'1.0-0' }}</td>
+                                                <td [attr.rowspan]="order.orderDetails.length">{{ order.totalPrice |
+                                                    currency:
+                                                    'VND':'symbol':'1.0-0' }}</td>
+                                                <td [attr.rowspan]="order.orderDetails.length">
+                                                    <button class="btn-icon btn-success"
+                                                        (click)="openActionPopup(order, 'confirm')" title="Confirm"
+                                                        [disabled]="order.status === 'Successful' || order.status === 'Cancel'">
+                                                        <i class="mdi mdi-check"></i>
+                                                    </button>
+                                                    <button class="btn-icon btn-danger"
+                                                        (click)="openActionPopup(order, 'cancel')" title="Cancel"
+                                                        [disabled]="order.status === 'Successful' || order.status === 'Cancel'">
+                                                        <i class="mdi mdi-cancel"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Hiển thị các dòng chi tiết khác (nếu có) -->
+                                            <tr *ngFor="let detail of order.orderDetails.slice(1)">
+                                                <td>{{ detail.orderDetailName }}</td>
+                                                <td>{{ getSupplierName(detail?.supplierId) }}</td>
+                                                <td>{{ detail.quantity }}</td>
+                                                <td>{{ detail.unitPrice | currency: 'VND':'symbol':'1.0-0' }}</td>
+                                            </tr>
+                                        </ng-container>
+
+                                        <!-- Thông báo khi không có đơn hàng -->
+                                        <tr *ngIf="orders.length === 0">
+                                            <td colspan="8" class="no-data">Không có đơn hàng nào phù hợp.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Phân trang -->
+                                <div class="pagination-container">
+                                    <div class="pagination-options">
+                                        <label for="pageSizeSelect">Hiển thị mỗi trang:</label>
+                                        <select id="pageSizeSelect" [(ngModel)]="pageSize"
+                                            (change)="onPageSizeChange(pageSize)">
+                                            <option *ngFor="let option of pageSizeOptions" [value]="option">{{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="pagination-buttons">
+                                        <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+                                            class="pagination-btn">
+                                            «
+                                        </button>
+                                        <span class="pagination-info">Trang {{ currentPage }} / {{ getTotalPages()
+                                            }}</span>
+                                        <button (click)="onPageChange(currentPage + 1)"
+                                            [disabled]="currentPage === getTotalPages()" class="pagination-btn">
+                                            »
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-footer></app-footer>
+        </div>
+    </div>
+</div>

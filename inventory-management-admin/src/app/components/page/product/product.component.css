@@ -1,0 +1,266 @@
+.product-container {
+    margin: auto 15px;
+    padding: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead th {
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+}
+
+tbody td:nth-child(3),
+tbody td:nth-child(4),
+tbody td:nth-child(5),
+tbody td:nth-child(6) {
+    text-align: center;
+    vertical-align: middle;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+    max-width: 60%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar .search-button {
+    margin-right: auto;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-bar .search-button:hover {
+    background-color: #0056b3;
+}
+
+.add-product-button {
+    margin-left: auto;
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-product-button:hover {
+    background-color: #218838;
+}
+
+.add-product-form {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #555;
+    flex: 0 0 150px;
+    /* Đặt độ rộng cố định cho label */
+    text-align: right;
+    text-align: left;
+}
+
+.form-group input,
+.form-group textarea {
+    flex: 1;
+    /* Để input/textarea chiếm khoảng trống còn lại */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.form-group textarea {
+    resize: vertical;
+    /* Cho phép thay đổi kích thước theo chiều dọc */
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #aaa;
+}
+
+.add-product-form button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.add-product-form button:first-child {
+    background-color: #007bff;
+    color: white;
+}
+
+.add-product-form button:first-child:hover {
+    background-color: #0056b3;
+}
+
+.add-product-form button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.add-product-form button:last-child:hover {
+    background-color: #c82333;
+}
+
+table button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #007bff;
+    margin: 0 5px;
+    transition: color 0.2s;
+}
+
+table button:hover {
+    color: #0056b3;
+}
+
+.delete-button {
+    color: #dc3545;
+}
+
+.delete-button:hover {
+    color: #c82333;
+}
+
+.mdi {
+    font-size: 24px;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.pagination-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-options label {
+    font-weight: bold;
+    color: #555;
+}
+
+#pageSizeSelect {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.pagination-btn:hover:not([disabled]) {
+    background-color: #0056b3;
+}
+
+.pagination-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #555;
+}
+
+.form-control {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+select.form-control,
+.select2-container--default select.select2-selection--single,
+.select2-container--default .select2-selection--single select.select2-search__field,
+select.typeahead,
+select.tt-query,
+select.tt-hint {
+    color: #333;
+    font-size: 14px;
+}
+
+.highlight {
+    color: red;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

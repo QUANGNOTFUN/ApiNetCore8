@@ -1,0 +1,149 @@
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 89vh;
+    width: 100%;
+    background: linear-gradient(145deg, #e4e4e4, #ffffff);
+}
+
+.form {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(0.96);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form:hover,
+.form:focus-within {
+    transform: scale(1);
+    box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.25);
+}
+
+h2 {
+    font-weight: 700;
+    font-size: 1.875rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #2167dd;
+}
+
+.input-wrapper {
+    margin-bottom: 1.5rem;
+}
+
+.input-wrapper label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333333;
+    display: block;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.input-group:focus-within {
+    border-color: #2167dd;
+}
+
+.input-group .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2167dd;
+    padding: 0.75rem;
+    color: white;
+}
+
+.input-group .icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: #333;
+}
+
+.input-group input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+.input-group input:focus {
+    color: #000;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: center;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn--primary {
+    background-color: #2167dd;
+    color: white;
+    box-shadow: 0px 4px 8px rgba(33, 103, 221, 0.3);
+}
+
+.btn--primary:hover {
+    background-color: #1a4a9d;
+    transform: translateY(-2px);
+}
+
+.btn--primary:focus {
+    outline: none;
+    background-color: #003b7a;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.link-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.signup-link {
+    font-size: 0.85rem;
+    color: #2167dd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.signup-link:hover {
+    color: #1a4a9d;
+    text-decoration: underline;
+}

@@ -1,0 +1,99 @@
+<div class="container-scroller">
+    <app-sidebar></app-sidebar>
+
+    <div class="container-fluid page-body-wrapper">
+        <app-settings-panel></app-settings-panel>
+        <app-navbar></app-navbar>
+        <div class="main-panel">
+            <div class="content-wrapper pb-0">
+                <div class="row">
+                    <div class="col-sm-12 stretch-card grid-margin">
+                        <div class="card">
+
+                            <div class="user-container">
+                                <h1>Quản lý người dùng</h1>
+
+                                <!-- Toggle Button -->
+                                <button class="create-btn" (click)="toggleCreateForm()">
+                                    Create New User
+                                </button>
+
+                                <!-- Add User Form (visible only if showCreateForm is true) -->
+                                <form *ngIf="showCreateForm" (ngSubmit)="addUser()" class="mb-4">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" id="firstName" [(ngModel)]="newUser.firstName"
+                                            name="firstName" class="form-control" required
+                                            placeholder="Enter first name" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" id="lastName" [(ngModel)]="newUser.lastName" name="lastName"
+                                            class="form-control" required placeholder="Enter last name" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email</label>
+                                        <input type="email" id="email" [(ngModel)]="newUser.email" name="email"
+                                            class="form-control" required placeholder="Enter email address" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Password</label>
+                                        <input type="password" id="password" [(ngModel)]="newUser.password"
+                                            name="password" class="form-control" required
+                                            placeholder="Enter password" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirm Password</label>
+                                        <input type="password" id="confirmPassword"
+                                            [(ngModel)]="newUser.confirmPassword" name="confirmPassword"
+                                            class="form-control" required placeholder="Re-enter password" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="role">Role</label>
+                                        <select id="role" [(ngModel)]="newUser.role" name="role" class="form-control"
+                                            required>
+                                            <option value="" disabled selected>Select a role</option>
+                                            <option value="admin">Administrator</option>
+                                            <option value="staff">Staff</option>
+                                            <option value="manager">Manager</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <button type="submit" class="btn btn-success mt-3">Add User</button>
+                                        <button type="button" class="btn btn-danger mt-3"
+                                            (click)="cancelForm()">Cancel</button>
+                                    </div>
+                                </form>
+
+
+                                <!-- User List Table -->
+                                <table class="table table-bordered mt-3">
+                                    <thead>
+                                        <tr>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Email</th>
+                                            <th>Username</th>
+                                            <th>Roles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let user of users">
+                                            <td>{{ user.firstName }}</td>
+                                            <td>{{ user.lastName }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.userName }}</td>
+                                            <td>{{ user.roles }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-footer></app-footer>
+        </div>
+    </div>
+</div>

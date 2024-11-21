@@ -1,0 +1,157 @@
+<div class="container-scroller">
+    <app-sidebar></app-sidebar>
+
+    <div class="container-fluid page-body-wrapper">
+        <app-settings-panel></app-settings-panel>
+        <app-navbar></app-navbar>
+        <div class="main-panel">
+            <div class="content-wrapper pb-0">
+                <div class="row">
+                    <div class="col-sm-12 stretch-card grid-margin">
+                        <div class="card">
+                            <div class="product-container">
+                                <h1>Sản phẩm tồn kho thấp</h1>
+                                <button (click)="openMultiOrderPopup()" class="multi-order-btn">Đặt hàng nhiều sản
+                                    phẩm</button>
+
+
+                                <div *ngIf="isMultiOrderPopupOpen" class="modal">
+                                    <div class="mutil-modal-content">
+                                        <h3>Đặt hàng nhiều sản phẩm</h3>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Chọn</th>
+                                                    <th>Tên sản phẩm</th>
+                                                    <th>Số lượng</th>
+                                                    <th>Nhà cung cấp</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of selectedProducts">
+                                                    <td>
+                                                        <input type="checkbox" [(ngModel)]="item.isSelected" />
+                                                    </td>
+                                                    <td>{{ getProductNameById(item.productId) }}</td>
+                                                    <td>
+                                                        <input type="number" [(ngModel)]="item.quantity" min="0"
+                                                            placeholder="Nhập số lượng" />
+                                                    </td>
+                                                    <td>
+                                                        <select [(ngModel)]="item.supplierId">
+                                                            <option
+                                                                *ngFor="let supplierId of getSuppliersByProductId(item.productId)"
+                                                                [value]="supplierId">
+                                                                {{ getSupplierNameById(supplierId) }}
+                                                            </option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <div class="modal-actions">
+                                            <button (click)="confirmMultiOrder()">Xác nhận</button>
+                                            <button (click)="closeMultiOrderPopup()">Hủy</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- Bảng danh sách sản phẩm tồn kho thấp -->
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Tên sản phẩm</th>
+                                            <th>Mô tả</th>
+                                            <th>Giá nhập</th>
+                                            <th>Giá bán</th>
+                                            <th>Số lượng tồn</th>
+                                            <th>Hạn mức</th>
+                                            <th>Nhà cung cấp</th>
+                                            <th>Đặt hàng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let product of products">
+                                            <td>{{ product.productName }}</td>
+                                            <td>{{ product.description }}</td>
+                                            <td>{{ product.costPrice | currency: 'VND':'symbol':'1.0-0' }}</td>
+                                            <td>{{ product.sellPrice | currency: 'VND':'symbol':'1.0-0' }}</td>
+                                            <td>{{ product.stockQuantity }}</td>
+                                            <td>{{ product.reorderLevel }}</td>
+                                            <td>
+                                                <ul>
+                                                    <li *ngFor="let supplierId of product.supplierIds">
+                                                        {{ getSupplierNameById(supplierId) }}
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <button (click)="openOrderPopup(product)">
+                                                    <i class="mdi mdi-cart menu-icon"></i>
+                                                </button>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Popup Modal -->
+                                <div *ngIf="isPopupOpen" class="modal">
+                                    <div class="modal-content">
+                                        <h3>Đặt hàng</h3>
+                                        <p>Sản phẩm: {{ selectedProduct?.productName }}</p>
+                                        <label for="quantity">Số lượng:</label>
+                                        <input id="quantity" type="number" [(ngModel)]="orderQuantity" min="1"
+                                            placeholder="Nhập số lượng" />
+
+                                        <label for="supplier">Chọn nhà cung cấp:</label>
+                                        <select id="supplier" [(ngModel)]="selectedSupplierId">
+                                            <option *ngFor="let supplierId of selectedProduct?.supplierIds"
+                                                [value]="supplierId">
+                                                {{ getSupplierNameById(supplierId) }}
+                                            </option>
+                                        </select>
+
+
+                                        <div class="modal-actions">
+                                            <button (click)="confirmOrder()">Xác nhận</button>
+                                            <button (click)="closePopup()">Hủy</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Phân trang -->
+                                <div class="pagination-container">
+                                    <div class="pagination-options">
+                                        <label for="pageSizeSelect">Hiển thị mỗi trang:</label>
+                                        <select id="pageSizeSelect" [(ngModel)]="pageSize"
+                                            (change)="onPageSizeChange(pageSize)">
+                                            <option *ngFor="let option of pageSizeOptions" [value]="option">{{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="pagination-buttons">
+                                        <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+                                            class="pagination-btn">
+                                            «
+                                        </button>
+                                        <span class="pagination-info">Trang {{ currentPage }} / {{ getTotalPages()
+                                            }}</span>
+                                        <button (click)="onPageChange(currentPage + 1)"
+                                            [disabled]="currentPage === getTotalPages()" class="pagination-btn">
+                                            »
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-footer></app-footer>
+        </div>
+    </div>
+</div>

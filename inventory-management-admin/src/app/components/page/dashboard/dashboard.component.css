@@ -1,0 +1,72 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+}
+
+.dashboard-container h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Thêm container cho biểu đồ để sắp xếp ngang */
+.chart-row {
+    display: flex;
+    flex-wrap: wrap;
+    /* Đảm bảo responsive */
+    justify-content: center;
+    /* Căn giữa các biểu đồ */
+    gap: 20px;
+    /* Khoảng cách giữa các biểu đồ */
+    width: 100%;
+    /* Chiều rộng tối đa */
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 400px;
+    /* Định chiều rộng cho mỗi biểu đồ */
+    max-width: 100%;
+}
+
+.chart-container h2 {
+    font-size: 1.5rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Responsive: biểu đồ xếp chồng khi màn hình nhỏ */
+@media (max-width: 768px) {
+    .chart-row {
+        flex-direction: column;
+        /* Biểu đồ xếp chồng theo chiều dọc */
+    }
+
+    .chart-container {
+        width: 100%;
+    }
+
+    .dashboard-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .chart-container h2 {
+        font-size: 1.25rem;
+    }
+}

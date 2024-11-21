@@ -1,0 +1,11 @@
+.nav-logout button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* Khoảng cách giữa icon và chữ */
+}
+
+.nav-logout i {
+    font-size: 16px;
+    /* Kích thước icon */
+}

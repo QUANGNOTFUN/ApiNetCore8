@@ -1,0 +1,74 @@
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <ul class="nav">
+        <li class="nav-item nav-profile border-bottom">
+            <a href="/" class="nav-link flex-column">
+                <div class="nav-profile-image">
+                    <img src="assets/images/face1.jpg" alt="profile" />
+                </div>
+                <div class="nav-profile-text d-flex ms-0 mb-3 flex-column">
+                    <span class="font-weight-semibold mb-1 mt-2 text-center">{{ fullName || 'Name' }}</span>
+                    <span class="text-secondary icon-sm text-center">{{ email }}</span>
+                </div>
+            </a>
+        </li>
+        <!-- <li class="nav-item pt-3">
+            <a class="nav-link d-block" href="#">
+                <img class="sidebar-brand-logo" src="assets/images/logo.svg" alt="" />
+                <img class="sidebar-brand-logomini" src="assets/images/logo-mini.svg" alt="" />
+            </a>
+        </li> -->
+        <li class="nav-item">
+            <a class="nav-link" href="/">
+                <i class="mdi mdi-compass-outline menu-icon"></i>
+                <span class="menu-title">Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/category">
+                <i class="mdi mdi-folder-outline menu-icon"></i>
+                <span class="menu-title">Quản lý danh mục</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/suppliers">
+                <i class="mdi mdi-factory menu-icon"></i>
+                <span class="menu-title">Quản lý nhà cung cấp</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false"
+                aria-controls="ui-basic">
+                <i class="mdi mdi-package-variant menu-icon"></i>
+                <span class="menu-title">Quản lý sản phẩm</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="ui-basic">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/product">
+                            Danh sách sản phẩm
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/lowstock">
+                            Sản phẩm tồn kho thấp
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/orders">
+                <i class="mdi mdi-cart menu-icon"></i>
+                <span class="menu-title">Quản lý đơn hàng</span>
+            </a>
+        </li>
+        <li class="nav-item pt-3" *ngIf="isAdmin">
+            <a class="nav-link" href="/manager-user">
+                <i class="mdi mdi-account menu-icon"></i>
+                <span class="menu-title">Quản lý người dùng</span>
+            </a>
+        </li>
+    </ul>
+</nav>

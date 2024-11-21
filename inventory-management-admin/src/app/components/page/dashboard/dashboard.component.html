@@ -1,0 +1,43 @@
+<div class="container-scroller">
+
+    <app-sidebar></app-sidebar>
+
+    <div class="container-fluid page-body-wrapper">
+        <app-settings-panel></app-settings-panel>
+        <app-navbar></app-navbar>
+        <div class="main-panel">
+            <div class="content-wrapper pb-0">
+                <div class="row">
+                    <div class="col-sm-12 stretch-card grid-margin">
+                        <div class="card">
+
+                            <div class="dashboard-container">
+                                <h1>Dashboard</h1>
+
+                                <!-- Hàng ngang chứa 2 biểu đồ -->
+                                <div class="chart-row">
+                                    <!-- Biểu đồ tròn: Số lượng sản phẩm nhập -->
+                                    <div *ngIf="dashboardInDay && dashboardAll" class="chart-container">
+                                        <h2>Products: Today vs Total</h2>
+                                        <canvas baseChart [data]="pieChartDataProducts"
+                                            [options]="pieChartOptionsProducts" [type]="pieChartType"></canvas>
+                                    </div>
+
+                                    <!-- Biểu đồ tròn: Tổng giá trị nhập -->
+                                    <div *ngIf="dashboardInDay && dashboardAll" class="chart-container">
+                                        <h2>Total Price: Today vs Total</h2>
+                                        <canvas baseChart [data]="pieChartDataPrice" [options]="pieChartOptionsPrice"
+                                            [type]="pieChartType"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <app-footer></app-footer>
+        </div>
+    </div>
+</div>

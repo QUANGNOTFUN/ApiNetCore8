@@ -1,0 +1,270 @@
+.category-container {
+    margin: auto 15px;
+    padding: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.pagination {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-category-form {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.add-category-form input,
+.add-category-form textarea {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+    max-width: 60%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar .search-button {
+    margin-right: auto;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-bar .search-button:hover {
+    background-color: #0056b3;
+}
+
+.add-category-button {
+    margin-left: auto;
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-category-button:hover {
+    background-color: #218838;
+}
+
+.add-category-form button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    /* Khoảng cách giữa các nút */
+}
+
+/* Nút Lưu */
+.add-category-form button:first-child {
+    background-color: #007bff;
+    color: white;
+}
+
+.add-category-form button:first-child:hover {
+    background-color: #0056b3;
+}
+
+/* Nút Hủy */
+.add-category-form button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.add-category-form button:last-child:hover {
+    background-color: #c82333;
+}
+
+
+table button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #007bff;
+    font-size: 16px;
+    margin: 0 5px;
+}
+
+table button:hover {
+    color: #0056b3;
+}
+
+.action-button,
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin: 0 5px;
+}
+
+.action-button {
+    color: #007bff;
+}
+
+.action-button:hover {
+    color: #0056b3;
+}
+
+.delete-button {
+    color: #dc3545 !important;
+}
+
+.delete-button:hover {
+    color: #c82333;
+}
+
+.mdi {
+    font-size: 24px;
+}
+
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.pagination-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-options label {
+    font-weight: bold;
+    color: #555;
+}
+
+#pageSizeSelect {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.pagination-btn:hover:not([disabled]) {
+    background-color: #0056b3;
+}
+
+.pagination-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #555;
+}
+
+ol,
+ul,
+dl {
+    margin-bottom: 0;
+}
+
+table td ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.supplier-select-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.supplier-select-container label {
+    flex-shrink: 0;
+    font-weight: bold;
+    color: #555;
+}
+
+.supplier-select-container select {
+    flex: 1;
+    height: auto;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+thead th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+tbody td:nth-child(1),
+tbody td:nth-child(5) {
+    text-align: center;
+    vertical-align: middle;
+}
+

@@ -1,0 +1,126 @@
+.user-container {
+    margin: auto 15px;
+    padding: 10px;
+}
+
+.create-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.create-btn:hover {
+    background-color: #0056b3;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    flex: 0 0 150px;
+    /* Độ rộng cố định cho label */
+    margin-right: 10px;
+    /* Khoảng cách giữa label và input */
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+    text-align: left;
+    /* Căn label sang phải */
+}
+
+.form-group input,
+.form-group select {
+    flex: 1;
+    /* Input chiếm phần còn lại của dòng */
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.d-flex {
+    display: flex;
+    gap: 10px;
+}
+
+.d-flex button {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.d-flex .btn-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.d-flex .btn-success:hover {
+    background-color: #218838;
+}
+
+.d-flex .btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.d-flex .btn-danger:hover {
+    background-color: #c82333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+.table th {
+    background-color: #007bff;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.mb-4 {
+    margin: 20px 0;
+}
+
+.mt-3 {
+    margin-top: 20px;
+}
